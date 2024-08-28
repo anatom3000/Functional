@@ -7,6 +7,7 @@
 enum class TokenKind {
     Literal,
     Ident,
+    Comma,
     LParen,
     RParen,
     Plus,
@@ -26,6 +27,7 @@ struct Token {
         switch (this->kind) {
             case TokenKind::Literal: return std::to_string(this->value);
             case TokenKind::Ident:   return this->ident;
+            case TokenKind::Comma:   return ",";
             case TokenKind::LParen:  return "(";
             case TokenKind::RParen:  return ")";
             case TokenKind::Plus:    return "+";
@@ -60,6 +62,7 @@ std::variant<Tokens, size_t> tokenize(std::string_view input) {
             case ' ':
             case '\t':
                 add = false;
+            case ',': tok.kind = TokenKind::Comma; break;
             case '(': tok.kind = TokenKind::LParen; break;
             case ')': tok.kind = TokenKind::RParen; break;
             case '+': tok.kind = TokenKind::Plus; break;
@@ -159,17 +162,77 @@ struct Expr {
                 if (this->name == "t") {
                     return t;
                 } else {
-                    return 69.0;
+                    return NAN;
                 }
             }
             case ExprKind::Application: {
+                if (this->name == "random") {
+                    return double(std::rand()) / double(RAND_MAX);
+                }
+                
+                if (this->args.size() < 0) return NAN;
+                double arg = this->args[0].interpret(t);
+                if (std::isnan(arg)) return NAN;
 
                 if (this->name == "sin") {
-                    double arg = this->args[0].interpret(t);
                     return std::sin(arg);
-                } else {
-                    return 69.0;
+                } else if (this->name == "cos") {
+                    return std::cos(arg);
+                } else if (this->name == "tan") {
+                    return std::tan(arg);
+                } else if (this->name == "acos") {
+                    return std::acos(arg);
+                } else if (this->name == "asin") {
+                    return std::asin(arg);
+                } else if (this->name == "atan") {
+                    return std::atan(arg);
+                } else if (this->name == "sqrt") {
+                    return std::sqrt(arg);
+                } else if (this->name == "cbrt") {
+                    return std::cbrt(arg);
+                } else if (this->name == "exp") {
+                    return std::exp(arg);
+                } else if (this->name == "ln") {
+                    return std::log(arg);
+                } else if (this->name == "log10") {
+                    return std::log10(arg);
+                } else if (this->name == "log2") {
+                    return std::log2(arg);
+                } else if (this->name == "cosh") {
+                    return std::cosh(arg);
+                } else if (this->name == "sinh") {
+                    return std::sinh(arg);
+                } else if (this->name == "tanh") {
+                    return std::tanh(arg);
+                } else if (this->name == "abs") {
+                    return std::abs(arg);
+                } else if (this->name == "floor") {
+                    return std::floor(arg);
+                } else if (this->name == "ceil") {
+                    return std::ceil(arg);
+                } else if (this->name == "round") {
+                    return std::round(arg);
+                } else if (this->name == "sgn") {
+                    if (arg == 0.0) {
+                        return 0.0;
+                    } else if (arg > 0.0) {
+                        return 1.0;
+                    } else {
+                        return -1.0;
+                    }
                 }
+
+                if (this->args.size() < 1) return NAN;
+                double arg2 = this->args[1].interpret(t);
+                if (std::isnan(arg2)) return NAN;
+
+                if (this->name == "min") {
+                    return std::min(arg, arg2);
+                } else if (this->name == "max") {
+                    return std::max(arg, arg2);
+                }
+                
+                return NAN;
             }
             case ExprKind::Neg: {
                 double arg = this->left->interpret(t);
@@ -197,11 +260,19 @@ struct Expr {
                 double left = this->left->interpret(t);
                 double right = this->right->interpret(t);
 
+                if (std::abs(right) < 10e-6) return NAN;
+
                 return left / right;
             }
             case ExprKind::Pow: {
                 double left = this->left->interpret(t);
                 double right = this->right->interpret(t);
+
+                if (std::isnan(left) || std::isnan(right)) return NAN;
+
+                if (left < 0.0 || (right - std::round(right)) < 1e-6) {
+                    right = std::round(right);
+                }
 
                 return pow(left, right);
             }
@@ -297,7 +368,7 @@ ParseResult parse_pow(Tokens& tokens, size_t& at) {
         Expr right;
         TRY(right, parse_pow(tokens, at));
         expr = {
-            .kind = ExprKind::Add,
+            .kind = ExprKind::Pow,
             .left = std::make_unique<Expr>(std::move(expr)),
             .right = std::make_unique<Expr>(std::move(right))
         };
@@ -347,10 +418,23 @@ ParseResult parse_primary(Tokens& tokens, size_t& at) {
                 auto func_name = tokens[at].ident;
                 at += 2;
 
-                Expr arg;
-                TRY(arg, parse_sum(tokens, at));
+                if (at < tokens.size() && tokens[at].kind == TokenKind::RParen) {
+                    expr = { .kind = ExprKind::Application, .name = func_name, .args = {} };
+                    at++;
+                    break;
+                }
+
+                Expr first;
+                TRY(first, parse_sum(tokens, at));
                 std::vector<Expr> args{};
-                args.push_back(std::move(arg));
+                args.push_back(std::move(first));
+                
+                while (at < tokens.size() && tokens[at].kind == TokenKind::Comma) {
+                    at++;
+                    Expr arg;
+                    TRY(arg, parse_sum(tokens, at));
+                    args.push_back(std::move(arg));
+                }
 
                 if (!(at < tokens.size() && tokens[at].kind == TokenKind::RParen)) {
                     return std::format("expected ')' after function arguments at token {}", at+1);
