@@ -1,7 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
 
-#include "nodes.hpp"
 #include "interpreter.cpp"
 
 using namespace geode;
@@ -55,11 +54,10 @@ public:
 
 		this->setKeypadEnabled(true);
         
-        layer->addChild(
-            NodeFactory<CCLabelBMFont>::start("Function tool", "bigFont.fnt")
-            .setPosition(ccp(0, 140) + offset)
-            .setScale(0.75f)
-        );
+        auto title_label = CCLabelBMFont::create("Function tool", "bigFont.fnt");
+        title_label->setPosition(offset + ccp(0, 140));
+        title_label->setScale(0.75f);
+        layer->addChild(title_label);
         
         m_input_x = TextInput::create(420, "", "chatFont.fnt");
         m_input_x->setLabel("x(t) =");
@@ -96,21 +94,20 @@ public:
         this->addChild(m_input_end);
 
 		float button_width = 68;
-		menu->addChild(
-			make_factory(CCMenuItemSpriteExtra::create(
-				ButtonSprite::create("Apply", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
-				this, menu_selector(CircleToolPopup::on_apply)
-			))
-			.setPosition(button_width / 2.f + 20, -125)
-		);
-
-		menu->addChild(
-			make_factory(CCMenuItemSpriteExtra::create(
-				ButtonSprite::create("Cancel", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
-				this, menu_selector(CircleToolPopup::on_close)
-			))
-			.setPosition(button_width / -2.f - 20, -125)
-		);
+        
+        auto apply_button = CCMenuItemSpriteExtra::create(
+            ButtonSprite::create("Apply", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
+            this, menu_selector(CircleToolPopup::on_apply)
+        );
+        apply_button->setPosition(button_width / 2.f + 20, -125);
+		menu->addChild(apply_button);
+            
+        auto cancel_button = CCMenuItemSpriteExtra::create(
+            ButtonSprite::create("Cancel", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
+            this, menu_selector(CircleToolPopup::on_close)
+        );
+        cancel_button->setPosition(-(button_width / 2.f + 20), -125);
+		menu->addChild(cancel_button);
 
 		this->setTouchEnabled(true);
 		return true;
