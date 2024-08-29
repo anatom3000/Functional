@@ -4,7 +4,7 @@
 	"developer": "anatom3000",
     "repository": "https://github.com/anatom3000/Functional",
 	"id": "anatom3000.functional",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"geode": "3.4.0",
 	"gd": {
 		"win": "2.206",
