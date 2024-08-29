@@ -10,5 +10,10 @@
 		"win": "2.206",
 		"android": "2.206",
 		"ios": "2.206"
-	}
+	},
+    "tag": [
+        "editor",
+        "utility",
+        "offline"
+    ]
 }
