@@ -139,6 +139,8 @@ enum class ExprKind {
     Pow,
 };
 
+double PI = 3.141592;
+
 struct Expr {
     ExprKind kind;
     // Variable, Application (function name)
@@ -175,11 +177,11 @@ struct Expr {
                 if (std::isnan(arg)) return NAN;
 
                 if (this->name == "sin") {
-                    return std::sin(arg);
+                    return std::sin(PI*arg/180.0);
                 } else if (this->name == "cos") {
-                    return std::cos(arg);
+                    return std::cos(PI*arg/180.0);
                 } else if (this->name == "tan") {
-                    return std::tan(arg);
+                    return std::tan(PI*arg/180.0);
                 } else if (this->name == "acos") {
                     return std::acos(arg);
                 } else if (this->name == "asin") {

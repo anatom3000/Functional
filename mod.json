@@ -1,6 +1,6 @@
 {   
 	"name": "Functional",
-	"description": "An editor tool to place objects using parameterized formulas",
+	"description": "An editor tool for placing objects using parameterized formulas",
 	"developer": "anatom3000",
     "repository": "https://github.com/anatom3000/Functional",
 	"id": "anatom3000.functional",

@@ -1,5 +1,5 @@
 # Functional
-A Geometry Dash mod to place objects using parameterized formulas
+A Geometry Dash mod to place objects using parameterized formulas.
 
 ## Build instructions
 ```sh
