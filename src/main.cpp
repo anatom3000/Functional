@@ -7,26 +7,182 @@ using namespace geode;
 using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
-class FunctionToolPopup : public FLAlertLayer, TextInputDelegate, FLAlertLayerProtocol {
+
+
+class FunctionToolPopup : public geode::Popup<> {
 public:
     TextInput* m_input_x;
     TextInput* m_input_y;
-    TextInput* m_input_scale_x;
-    TextInput* m_input_scale_y;
+    std::string m_scale_x;
+    std::string m_scale_y;
     TextInput* m_input_rotation;
     TextInput* m_input_n;
     TextInput* m_input_start;
     TextInput* m_input_end;
-    TextInput* m_input_base_hue;
-    TextInput* m_input_base_saturation;
-    TextInput* m_input_base_value;
-    TextInput* m_input_detail_hue;
-    TextInput* m_input_detail_saturation;
-    TextInput* m_input_detail_value;
+    std::string m_base_hue;
+    std::string m_base_saturation;
+    std::string m_base_value;
+    std::string m_detail_hue;
+    std::string m_detail_saturation;
+    std::string m_detail_value;
+
+
+    class ScalePopup : public geode::Popup<> {
+    public:
+        TextInput* m_input_scale_x;
+        TextInput* m_input_scale_y;
+        FunctionToolPopup* m_functool;
+
+        static auto* create() {
+            auto* node = new (std::nothrow) ScalePopup();
+            if (node && node->initAnchored(220, 180)) {
+                node->autorelease();
+            } else {
+                delete node;
+                node = nullptr;
+            }
+            return node;
+        }
+
+        bool setup() override {
+            m_noElasticity = true;
+            this->setTitle("Scale");
+
+            auto winSize = CCDirector::sharedDirector()->getWinSize();
+            auto center = winSize / 2.f;
+
+            auto const center2 = CCSize(220, 280) / 2;
+
+            auto okBtn = CCMenuItemSpriteExtra::create(
+                ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .75f),
+                this,
+                menu_selector(HsvPopup::onClose)
+            );
+            okBtn->setPosition(center2 + ccp(0, -112));
+            m_buttonMenu->addChild(okBtn);
+
+            int input_width = 200;
+
+            m_input_scale_x = TextInput::create(input_width, "1.0", "chatFont.fnt");
+            m_input_scale_x->setLabel("Scale x(t) =");
+            m_input_scale_x->setPosition(center + ccp(0, 30));
+            m_input_scale_x->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_scale_x);
+
+            m_input_scale_y = TextInput::create(input_width, "1.0", "chatFont.fnt");
+            m_input_scale_y->setLabel("Scale y(t) =");
+            m_input_scale_y->setPosition(center + ccp(0, -20));
+            m_input_scale_y->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_scale_y);
+
+            return true;
+        }
+
+        void onClose(CCObject* obj) override {
+            this->m_functool->m_scale_x = this->m_input_scale_x->getString();
+            this->m_functool->m_scale_y = this->m_input_scale_y->getString();
+
+            Popup::onClose(obj);
+        }
+    };
+
+
+    class HsvPopup : public geode::Popup<> {
+    public:
+        TextInput* m_input_base_hue;
+        TextInput* m_input_base_saturation;
+        TextInput* m_input_base_value;
+        TextInput* m_input_detail_hue;
+        TextInput* m_input_detail_saturation;
+        TextInput* m_input_detail_value;
+        FunctionToolPopup* m_functool;
+
+        static auto* create() {
+            auto* node = new (std::nothrow) HsvPopup();
+            if (node && node->initAnchored(440, 180)) {
+                node->autorelease();
+            } else {
+                delete node;
+                node = nullptr;
+            }
+            return node;
+        }
+
+        bool setup() override {
+            m_noElasticity = true;
+            this->setTitle("HSV");
+
+            auto winSize = CCDirector::sharedDirector()->getWinSize();
+            auto center = winSize / 2.f;
+
+            auto const center2 = CCSize(440, 280) / 2;
+
+            auto okBtn = CCMenuItemSpriteExtra::create(
+                ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .75f),
+                this,
+                menu_selector(HsvPopup::onClose)
+            );
+            okBtn->setPosition(center2 + ccp(0, -112));
+            m_buttonMenu->addChild(okBtn);
+
+            int input_width = 205;
+
+            m_input_base_hue = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_base_hue->setLabel("Base hue(t) =");
+            m_input_base_hue->setPosition(center + ccp(-140, 25));
+            m_input_base_hue->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_base_hue);
+
+            m_input_base_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_base_saturation->setLabel("Base saturation(t) =");
+            m_input_base_saturation->setPosition(center + ccp(0, 25));
+            m_input_base_saturation->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_base_saturation);
+
+            m_input_base_value = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_base_value->setLabel("Base value(t) =");
+            m_input_base_value->setPosition(center + ccp(140, 25));
+            m_input_base_value->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_base_value);
+
+            m_input_detail_hue = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_detail_hue->setLabel("Detail hue(t) =");
+            m_input_detail_hue->setPosition(center + ccp(-140, -25));
+            m_input_detail_hue->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_detail_hue);
+
+            m_input_detail_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_detail_saturation->setLabel("Detail saturation(t) =");
+            m_input_detail_saturation->setPosition(center + ccp(0, -25));
+            m_input_detail_saturation->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_detail_saturation);
+
+            m_input_detail_value = TextInput::create(130, "0.0", "chatFont.fnt");
+            m_input_detail_value->setLabel("Detail value(t) =");
+            m_input_detail_value->setPosition(center + ccp(140, -25));
+            m_input_detail_value->setCommonFilter(CommonFilter::Any);
+            this->addChild(m_input_detail_value);
+
+
+            return true;
+        }
+
+        void onClose(CCObject* obj) override {
+            this->m_functool->m_base_hue = this->m_input_base_hue->getString();
+            this->m_functool->m_base_saturation = this->m_input_base_saturation->getString();
+            this->m_functool->m_base_value = this->m_input_base_value->getString();
+
+            this->m_functool->m_detail_hue = this->m_input_detail_hue->getString();
+            this->m_functool->m_detail_saturation = this->m_input_detail_saturation->getString();
+            this->m_functool->m_detail_value = this->m_input_detail_value->getString();
+
+            Popup::onClose(obj);
+        }
+    };
 
 	static auto* create() {
 		auto* node = new (std::nothrow) FunctionToolPopup();
-		if (node && node->init()) {
+		if (node && node->initAnchored(440, 280)) {
 			node->autorelease();
 		} else {
 			delete node;
@@ -35,155 +191,80 @@ public:
 		return node;
 	}
 
-	bool init() override {
-		if (!this->initWithColor({0, 0, 0, 75})) return false;
+	bool setup() override {
+        m_noElasticity = true;
+        this->setTitle("Function tool");
 
-		this->m_noElasticity = true;
+        auto winSize = CCDirector::sharedDirector()->getWinSize();
+        auto center = winSize / 2.f;
 
-		auto* director = CCDirector::sharedDirector();
-		geode::cocos::handleTouchPriority(this);
-		this->registerWithTouchDispatcher();
+        auto const center2 = CCSize(440, 280)/2;
 
-		auto layer = CCLayer::create();
-		auto menu = CCMenu::create();
-		this->m_mainLayer = layer;
-		this->m_buttonMenu = menu;
-		
-		layer->addChild(menu);
-		this->addChild(layer);
+        auto applyBtn = CCMenuItemSpriteExtra::create(
+            ButtonSprite::create("Apply", "bigFont.fnt", "GJ_button_01.png", .75f),
+            this,
+            menu_selector(FunctionToolPopup::on_apply)
+        );
+        auto scaleBtn = CCMenuItemSpriteExtra::create(
+            EditorButtonSprite::createWithSpriteFrameName("edit_scaleXYBtn_001.png", .95f),
+            this,
+            menu_selector(FunctionToolPopup::onScale)
+        );
+        auto hsvBtn = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName("GJ_hsvBtn_001.png"),
+            this,
+            menu_selector(FunctionToolPopup::onHsv)
+        );
 
-		const float width = 445, height = 310;
-		const CCPoint offset = director->getWinSize() / 2.f;
-		auto bg = extension::CCScale9Sprite::create("GJ_square01.png");
-		bg->setContentSize({width, height});
-		bg->setPosition(offset);
-		menu->setPosition(offset);
-		bg->setZOrder(-2);
-		layer->addChild(bg);
+        applyBtn->setPosition(center2 + ccp(0, -110));
+        scaleBtn->setPosition(center2 + ccp(110, -20));
+        hsvBtn->setPosition(center2 + ccp(180, -20));
+        m_buttonMenu->addChild(applyBtn);
+        m_buttonMenu->addChild(scaleBtn);
+        m_buttonMenu->addChild(hsvBtn);
 
-		this->setKeypadEnabled(true);
-        
-        auto title_label = CCLabelBMFont::create("Function tool", "bigFont.fnt");
-        title_label->setPosition(offset + ccp(0, 140));
-        title_label->setScale(0.75f);
-        layer->addChild(title_label);
-
-        int input_width = 205;
+        int input_width = 200;
 
         m_input_x = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_x->setLabel("Position x(t) =");
-        m_input_x->setPosition(offset + ccp(-110, 100));
+        m_input_x->setPosition(center + ccp(-110, 80));
         m_input_x->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_x);
 
         m_input_y = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_y->setLabel("Position y(t) =");
-        m_input_y->setPosition(offset + ccp(110, 100));
+        m_input_y->setPosition(center + ccp(110, 80));
         m_input_y->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_y);
 
-        m_input_scale_x = TextInput::create(input_width, "1.0", "chatFont.fnt");
-        m_input_scale_x->setLabel("Scale x(t) =");
-        m_input_scale_x->setPosition(offset + ccp(-110, 55));
-        m_input_scale_x->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_scale_x);
-
-        m_input_scale_y = TextInput::create(input_width, "1.0", "chatFont.fnt");
-        m_input_scale_y->setLabel("Scale y(t) =");
-        m_input_scale_y->setPosition(offset + ccp(110, 55));
-        m_input_scale_y->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_scale_y);
-
         m_input_rotation = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_rotation->setLabel("Rotation(t) =");
-        m_input_rotation->setPosition(offset + ccp(-110, 10));
+        m_input_rotation->setPosition(center + ccp(-110, -15));
         m_input_rotation->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_rotation);
 
         m_input_n = TextInput::create(60, "", "chatFont.fnt");
         m_input_n->setLabel("Amount: ");
         m_input_n->setString("20", false);
-        m_input_n->setPosition(offset + ccp(40, 10));
+        m_input_n->setPosition(center + ccp(40, -70));
         m_input_n->setCommonFilter(CommonFilter::Uint);
         this->addChild(m_input_n);
 
         m_input_start = TextInput::create(60, "", "chatFont.fnt");
         m_input_start->setLabel("Start t: ");
         m_input_start->setString("0.0", false);
-        m_input_start->setPosition(offset + ccp(110, 10));
+        m_input_start->setPosition(center + ccp(110, -70));
         m_input_start->setCommonFilter(CommonFilter::Float);
         this->addChild(m_input_start);
 
         m_input_end = TextInput::create(60, "", "chatFont.fnt");
         m_input_end->setLabel("End t: ");
         m_input_end->setString("5.0", false);
-        m_input_end->setPosition(offset + ccp(180, 10));
+        m_input_end->setPosition(center + ccp(180, -70));
         m_input_end->setCommonFilter(CommonFilter::Float);
         this->addChild(m_input_end);
 
-        m_input_base_hue = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_base_hue->setLabel("Base hue(t) =");
-        m_input_base_hue->setPosition(offset + ccp(-140, -35));
-        m_input_base_hue->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_base_hue);
-
-        m_input_base_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_base_saturation->setLabel("Base saturation(t) =");
-        m_input_base_saturation->setPosition(offset + ccp(0, -35));
-        m_input_base_saturation->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_base_saturation);
-
-        m_input_base_value = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_base_value->setLabel("Base value(t) =");
-        m_input_base_value->setPosition(offset + ccp(140, -35));
-        m_input_base_value->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_base_value);
-
-        m_input_detail_hue = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_detail_hue->setLabel("Detail hue(t) =");
-        m_input_detail_hue->setPosition(offset + ccp(-140, -80));
-        m_input_detail_hue->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_detail_hue);
-
-        m_input_detail_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_detail_saturation->setLabel("Detail saturation(t) =");
-        m_input_detail_saturation->setPosition(offset + ccp(0, -80));
-        m_input_detail_saturation->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_detail_saturation);
-
-        m_input_detail_value = TextInput::create(130, "0.0", "chatFont.fnt");
-        m_input_detail_value->setLabel("Detail value(t) =");
-        m_input_detail_value->setPosition(offset + ccp(140, -80));
-        m_input_detail_value->setCommonFilter(CommonFilter::Any);
-        this->addChild(m_input_detail_value);
-
-		float button_width = 68;
-
-        auto apply_button = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("Apply", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
-            this, menu_selector(FunctionToolPopup::on_apply)
-        );
-        apply_button->setPosition(button_width / 2.f + 20, -125);
-		menu->addChild(apply_button);
-            
-        auto cancel_button = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("Cancel", button_width, true, "bigFont.fnt", "GJ_button_01.png", 0, 0.75f),
-            this, menu_selector(FunctionToolPopup::on_close)
-        );
-        cancel_button->setPosition(-(button_width / 2.f + 20), -125);
-		menu->addChild(cancel_button);
-
-		this->setTouchEnabled(true);
 		return true;
-	}
-
-	void keyBackClicked() override {
-		this->setTouchEnabled(false);
-		this->removeFromParentAndCleanup(true);
-	}
-
-	void on_close(CCObject*) {
-		this->keyBackClicked();
 	}
 
 	void on_apply(CCObject*) {
@@ -194,9 +275,30 @@ public:
 		}
 	}
 
-	void FLAlert_Clicked(FLAlertLayer*, bool btn2) override {
-		if (btn2) perform();
-	}
+    void onHsv(CCObject*) {
+        auto sub = HsvPopup::create();
+        sub->m_functool = this;
+        
+        sub->m_input_base_hue->setString(this->m_base_hue, false);
+        sub->m_input_base_saturation->setString(this->m_base_saturation, false);
+        sub->m_input_base_value->setString(this->m_base_value, false);
+
+        sub->m_input_detail_hue->setString(this->m_detail_hue, false);
+        sub->m_input_detail_saturation->setString(this->m_detail_saturation, false);
+        sub->m_input_detail_value->setString(this->m_detail_value, false);
+
+        sub->show();
+    }
+
+    void onScale(CCObject*) {
+        auto sub = ScalePopup::create();
+        sub->m_functool = this;
+
+        sub->m_input_scale_x->setString(this->m_scale_x, false);
+        sub->m_input_scale_y->setString(this->m_scale_y, false);
+
+        sub->show();
+    }
 
     CCArray* copyObjects(CCArray* objects) {
 		auto* editor = GameManager::sharedState()->getEditorLayer();
@@ -293,8 +395,7 @@ public:
     }
 
 	void perform() {
-        #define parse_field(out, in, field_name, default) {\
-            auto input = in->getString();\
+        #define parse_field(out, input, field_name, default) {\
             auto expr_result = this->parse_input(input, field_name, default);\
             if (expr_result.has_value()) {\
                 out = std::move(expr_result.value());\
@@ -306,17 +407,17 @@ public:
         #define zero { .kind = ExprKind::Literal, .value = 0.0 }
         #define one  { .kind = ExprKind::Literal, .value = 1.0 }
 
-        Expr x_expr;                    parse_field(x_expr, m_input_x, "position x(t)", zero);
-        Expr y_expr;                    parse_field(y_expr, m_input_y, "position x(t)", zero);
-        Expr scale_x_expr;              parse_field(scale_x_expr, m_input_scale_x, "scale x(t)", one);
-        Expr scale_y_expr;              parse_field(scale_y_expr, m_input_scale_y, "scale y(t)", one);
-        Expr rotation_expr;             parse_field(rotation_expr, m_input_rotation, "rotation(t)", zero);
-        Expr base_hue_expr;             parse_field(base_hue_expr, m_input_base_hue, "base hue(t)", zero);
-        Expr base_saturation_expr;      parse_field(base_saturation_expr, m_input_base_saturation, "base saturation(t)", zero);
-        Expr base_value_expr;           parse_field(base_value_expr, m_input_base_value, "base value(t)", zero);
-        Expr detail_hue_expr;           parse_field(detail_hue_expr, m_input_detail_hue, "detail hue(t)", zero);
-        Expr detail_saturation_expr;    parse_field(detail_saturation_expr, m_input_detail_saturation, "detail saturation(t)", zero);
-        Expr detail_value_expr;         parse_field(detail_value_expr, m_input_detail_value, "detail value(t)", zero);
+        Expr x_expr;                    parse_field(x_expr, m_input_x->getString(), "position x(t)", zero);
+        Expr y_expr;                    parse_field(y_expr, m_input_y->getString(), "position x(t)", zero);
+        Expr scale_x_expr;              parse_field(scale_x_expr, m_scale_x, "scale x(t)", one);
+        Expr scale_y_expr;              parse_field(scale_y_expr, m_scale_y, "scale y(t)", one);
+        Expr rotation_expr;             parse_field(rotation_expr, m_input_rotation->getString(), "rotation(t)", zero);
+        Expr base_hue_expr;             parse_field(base_hue_expr, m_base_hue, "base hue(t)", zero);
+        Expr base_saturation_expr;      parse_field(base_saturation_expr, m_base_saturation, "base saturation(t)", zero);
+        Expr base_value_expr;           parse_field(base_value_expr, m_base_value, "base value(t)", zero);
+        Expr detail_hue_expr;           parse_field(detail_hue_expr, m_detail_hue, "detail hue(t)", zero);
+        Expr detail_saturation_expr;    parse_field(detail_saturation_expr, m_detail_saturation, "detail saturation(t)", zero);
+        Expr detail_value_expr;         parse_field(detail_value_expr, m_detail_value, "detail value(t)", zero);
 
         std::string steps_str = m_input_n->getString();
         steps_str.erase(std::remove_if(steps_str.begin(), steps_str.end(), isspace), steps_str.end());

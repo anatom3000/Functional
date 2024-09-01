@@ -19,7 +19,7 @@ This mod adds a button to the edit tab in the editor that places copies of the s
 - `min(..., ...)`, `max(..., ...)`
 
 ## Issues
-If you encounter any bug, please DM the developper on Discord: `@anatom3000` or [create an issue on Github](https://github.com/anatom3000/Functional/issues).
+If you encounter any bug, please DM the developer on Discord: `@anatom3000` or [create an issue on Github](https://github.com/anatom3000/Functional/issues).
 
 ## Credits
-- This mod is based on [matcool's Circle Tool](mod:mat.circle-tool), although almost every part of the code has been modified in some way and the core logic has been completely rewritten.
+This mod is based on [matcool's Circle Tool](mod:mat.circle-tool), although almost every part of the code has been modified in some way and the core logic has been completely rewritten.

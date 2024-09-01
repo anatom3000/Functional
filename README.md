@@ -7,4 +7,3 @@ This mod is available on the [Geode index](https://geode-sdk.org/mods/anatom3000
 # Assuming you have the Geode CLI set up already
 geode build
 ```
-
