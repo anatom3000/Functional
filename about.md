@@ -23,3 +23,5 @@ If you encounter any bug, please DM the developer on Discord: `@anatom3000` or [
 
 ## Credits
 This mod is based on [matcool's Circle Tool](mod:mat.circle-tool), although almost every part of the code has been modified in some way and the core logic has been completely rewritten.
+
+uwu
