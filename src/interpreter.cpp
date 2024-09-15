@@ -184,11 +184,11 @@ struct Expr {
                 } else if (this->name == "tan") {
                     return std::tan(PI*arg/180.0);
                 } else if (this->name == "acos") {
-                    return std::acos(arg);
+                    return 180.0*std::acos(arg)/PI;
                 } else if (this->name == "asin") {
-                    return std::asin(arg);
+                    return 180.0*std::asin(arg)/PI;
                 } else if (this->name == "atan") {
-                    return std::atan(arg);
+                    return 180.0*std::atan(arg)/PI;
                 } else if (this->name == "sqrt") {
                     return std::sqrt(arg);
                 } else if (this->name == "cbrt") {

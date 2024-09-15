@@ -10,7 +10,7 @@ This mod adds a button to the edit tab in the editor that places copies of the s
 - `+`, `-`, `*`, `/`, `**` (pow)
 - `random()`
 - `cos(...)`, `sin(...)`, `tan(...)` (arguments are in degrees)
-- `acos(...)`, `asin(...)`, `atan(...)`
+- `acos(...)`, `asin(...)`, `atan(...)` (results are in degrees)
 - `sqrt(...)`, `cbrt(...)`
 - `exp(...)`, `ln(...)`, `log10(...)`, `log2(...)`
 - `cosh(...)`, `sinh(...)`, `tanh(...)`
