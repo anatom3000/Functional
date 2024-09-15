@@ -1,6 +1,5 @@
 ## TODO (maybe (if I got time (probably not)))
 - FIXME: relative scaling when rotating objects
-- FIXME: results of inverse trig functions are in radians
 - absolute rotation
 - absolute scaling
 - use robtop units
