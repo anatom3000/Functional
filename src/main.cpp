@@ -8,7 +8,6 @@ using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
 
-
 class FunctionToolPopup : public geode::Popup<> {
 public:
     TextInput* m_input_x;
@@ -359,8 +358,8 @@ public:
     }
 
     void scaleRelative(GameObject* obj, CCPoint relative, float scale_x, float scale_y) {
-        obj->setRScaleX(scale_x);
-        obj->setRScaleY(scale_y);
+		auto* editor = GameManager::sharedState()->getEditorLayer();
+		EditorUI* ui = editor->m_editorUI;
 
         auto pos = obj->getRealPosition();
 
@@ -375,23 +374,48 @@ public:
     void rotateRelative(GameObject* obj, CCPoint relative, float angle_rel) {
         if (angle_rel < 10e-6) return;
 
+		auto* editor = GameManager::sharedState()->getEditorLayer();
+		EditorUI* ui = editor->m_editorUI;
+
         obj->setRRotation(angle_rel);
 
-        auto pos = obj->getRealPosition() - relative;
+        auto pos = obj->getRealPosition();
+        auto pi = 3.141592;
 
-        double pi = 3.141592;
+        ui->moveObject(obj, -pos);
 
-        double radius = std::sqrt(double(pos.x)*double(pos.x) + double(pos.y)*double(pos.y));
-        double angle = std::atan2(double(pos.y), double(pos.x));
+        pos -= relative;
 
-        angle -= pi * angle_rel / 180.f;
+        auto c = std::cos(pi * angle_rel / 180.f);
+        auto s = std::sin(pi * angle_rel / 180.f);
 
-        pos.x = float(radius * std::cos(angle));
-        pos.y = float(radius * std::sin(angle));
+        auto x = pos.x = pos.x * c - pos.y * s;
+        auto y = pos.x * s + pos.y * c;
+
+        pos.x = x;
+        pos.y = y;
         
         pos += relative;
+        ui->moveObject(obj, pos);
+        
+    }
 
-        obj->setPosition(pos);
+    CCPoint centerOf(CCArray* objects) {
+        auto first_pos = static_cast<GameObject*>(objects->objectAtIndex(0))->getRealPosition();
+
+        float x_min = first_pos.x;
+        float x_max = first_pos.x;
+        float y_min = first_pos.y;
+        float y_max = first_pos.y;
+        for (int i = 1; i < objects->count(); i++) {
+            auto pos = static_cast<GameObject*>(objects->objectAtIndex(i))->getRealPosition();
+            x_min = std::min(x_min, pos.x);
+            x_max = std::max(x_max, pos.x);
+            y_min = std::min(y_min, pos.y);
+            y_max = std::max(y_max, pos.y);
+        }
+
+        return ccp((x_min+x_max)/2.f, (y_min+y_max)/2.f);
     }
 
 	void perform() {
@@ -459,26 +483,12 @@ public:
 		auto* objs = CCArray::create();
 
         auto selected = ui->getSelectedObjects()->shallowCopy();
-        auto first_pos = static_cast<GameObject*>(selected->objectAtIndex(0))->getRealPosition();
-        float x_min = first_pos.x;
-        float x_max = first_pos.x;
-        float y_min = first_pos.y;
-        float y_max = first_pos.y;
-        for (int i = 1; i < selected->count(); i++) {
-            auto pos = static_cast<GameObject*>(selected->objectAtIndex(i))->getRealPosition();
-            x_min = std::min(x_min, pos.x);
-            x_max = std::max(x_max, pos.x);
-            y_min = std::min(y_min, pos.y);
-            y_max = std::max(y_max, pos.y);
-        }
-
-        CCPoint center = ccp((x_min+x_max)/2.f, (y_min+y_max)/2.f);
+        auto center = this->centerOf(selected);
 
 		for (float i = 0; i < steps; i++) {
             float t = start + (end - start) * (float)i/(float)steps;
 
             CCPoint pos = ccp(30.0*x_expr.interpret(t), 30.0*y_expr.interpret(t));
-            CCPoint current_center = pos+center;
             float rotation = rotation_expr.interpret(t);
             float scale_x = scale_x_expr.interpret(t);
             float scale_y = scale_y_expr.interpret(t);
@@ -499,17 +509,21 @@ public:
             if (!ok) continue;
             
             auto current = copyObjects(selected);
+            auto current_center = center+pos;
+            ui->transformObjects(current, current_center, scale_x, scale_y, 0.f, 0.f, 0.f, 0.f);
             for (int j = 0; j < current->count(); j++) {
                 GameObject* obj = static_cast<GameObject*>(current->objectAtIndex(j));
+                GameObject* first = static_cast<GameObject*>(current->objectAtIndex(0));
 
-                ui->moveObject(obj, pos);
-                this->scaleRelative(obj, current_center, scale_x, scale_y);
+                ui->moveObject(obj, current_center+ccp(-current_center.x + scale_x*current_center.x, -current_center.y + scale_y*current_center.y));
                 this->rotateRelative(obj, current_center, rotation);
+                //this->scaleRelative(obj, current_center, scale_x, scale_y);
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
                 obj->m_baseColor->m_hsv.v += base_value;
             }
-			
+
+            
 			objs->addObjectsFromArray(current);
 		}
 		editor->m_undoObjects->addObject(UndoObject::createWithArray(objs, UndoCommand::Paste));

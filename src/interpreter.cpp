@@ -51,7 +51,7 @@ bool is_ident_char(char c, bool allow_digits) {
 
 std::variant<Tokens, size_t> tokenize(std::string_view input) {
     Tokens tokens{};
-
+    
     size_t len = input.length();
     size_t i = 0;
     while (i < len) {
@@ -62,6 +62,7 @@ std::variant<Tokens, size_t> tokenize(std::string_view input) {
             case ' ':
             case '\t':
                 add = false;
+                break;
             case ',': tok.kind = TokenKind::Comma; break;
             case '(': tok.kind = TokenKind::LParen; break;
             case ')': tok.kind = TokenKind::RParen; break;
@@ -157,7 +158,6 @@ struct Expr {
     double interpret(double t) {
         switch (this->kind) {
             case ExprKind::Literal: {
-
                 return this->value;
             }
             case ExprKind::Variable: {
@@ -168,6 +168,7 @@ struct Expr {
                 }
             }
             case ExprKind::Application: {
+                // TODO: rewrite this mess
                 if (this->name == "random") {
                     return double(std::rand()) / double(RAND_MAX);
                 }
@@ -287,9 +288,9 @@ using ParseResult = std::variant<Expr, std::string>;
 
 #define TRY(var, expr) {\
     ParseResult _try_val = expr;\
-    try {\
+    if (_try_val.index() == 0) {\
         var = std::move(std::get<0>(_try_val));\
-    } catch (const std::bad_variant_access &e) {\
+    } else {\
         return _try_val;\
     }\
 }
