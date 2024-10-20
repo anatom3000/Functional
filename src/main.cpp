@@ -204,6 +204,13 @@ public:
             this,
             menu_selector(FunctionToolPopup::on_apply)
         );
+
+
+        auto settingsBtn = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName("GJ_optionsBtn02_001.png"),
+            this,
+            menu_selector(FunctionToolPopup::onScale)
+        );
         auto scaleBtn = CCMenuItemSpriteExtra::create(
             EditorButtonSprite::createWithSpriteFrameName("edit_scaleXYBtn_001.png", .90f),
             this,
