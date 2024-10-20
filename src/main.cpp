@@ -12,18 +12,77 @@ class FunctionToolPopup : public geode::Popup<> {
 public:
     TextInput* m_input_x;
     TextInput* m_input_y;
-    std::string m_scale_x;
-    std::string m_scale_y;
     TextInput* m_input_rotation;
+
     TextInput* m_input_n;
     TextInput* m_input_start;
     TextInput* m_input_end;
+
+    bool m_abs_scaling;
+    bool m_abs_rotation;
+
+    std::string m_scale_x;
+    std::string m_scale_y;
+
     std::string m_base_hue;
     std::string m_base_saturation;
     std::string m_base_value;
     std::string m_detail_hue;
     std::string m_detail_saturation;
     std::string m_detail_value;
+
+
+    class SettingsPopup : public geode::Popup<> {
+    public:
+        FunctionToolPopup* m_functool;
+        CCMenuItemToggler* m_input_abs_scaling;
+        CCMenuItemToggler* m_input_abs_rotation;
+
+        static auto* create() {
+            auto* node = new (std::nothrow) SettingsPopup();
+            if (node && node->initAnchored(220, 280)) {
+                node->autorelease();
+            } else {
+                delete node;
+                node = nullptr;
+            }
+            return node;
+        }
+
+        bool setup() override {
+            m_noElasticity = true;
+            this->setTitle("Options");
+
+            auto winSize = CCDirector::sharedDirector()->getWinSize();
+            auto center = winSize / 2.f;
+
+            auto const center2 = CCSize(220, 280) / 2;
+                
+            m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(SettingsPopup::onAbsScalingToggle), 0.6f);
+            m_input_abs_scaling->setPosition(center2 + ccp(80, 30));
+            m_buttonMenu->addChild(m_input_abs_scaling);
+
+            m_input_abs_rotation = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(SettingsPopup::onAbsRotationToggle), 0.6f);
+            m_input_abs_rotation->setPosition(center2 + ccp(80, -25));
+            m_buttonMenu->addChild(m_input_abs_rotation);
+
+            return true;
+        }
+
+        void onAbsScalingToggle(CCObject*) {
+            m_functool->m_abs_scaling = m_input_abs_scaling->isToggled();
+        }
+
+        void onAbsRotationToggle(CCObject*) {
+            m_functool->m_abs_rotation = m_input_abs_rotation->isToggled();
+        }
+
+        void onClose(CCObject* obj) override {
+            m_functool->m_abs_scaling = m_input_abs_scaling->isToggled();
+            m_functool->m_abs_rotation = m_input_abs_rotation->isToggled();
+            Popup::onClose(obj);
+        }
+    };
 
 
     class ScalePopup : public geode::Popup<> {
@@ -52,8 +111,12 @@ public:
 
             auto const center2 = CCSize(220, 280) / 2;
 
+
+            auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
+            okSprite->setScale(0.85f);
+
             auto okBtn = CCMenuItemSpriteExtra::create(
-                ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .75f),
+                okSprite,
                 this,
                 menu_selector(HsvPopup::onClose)
             );
@@ -116,11 +179,17 @@ public:
 
             auto const center2 = CCSize(440, 280) / 2;
 
+            auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
+            okSprite->setScale(0.85f);
+
             auto okBtn = CCMenuItemSpriteExtra::create(
-                ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .75f),
+                okSprite,
                 this,
                 menu_selector(HsvPopup::onClose)
             );
+
+            okBtn->setPosition(center2 + ccp(0, -112));
+            m_buttonMenu->addChild(okBtn);
             okBtn->setPosition(center2 + ccp(0, -112));
             m_buttonMenu->addChild(okBtn);
 
@@ -181,7 +250,7 @@ public:
 
 	static auto* create() {
 		auto* node = new (std::nothrow) FunctionToolPopup();
-		if (node && node->initAnchored(440, 280)) {
+		if (node && node->initAnchored(440, 180)) {
 			node->autorelease();
 		} else {
 			delete node;
@@ -197,19 +266,24 @@ public:
         auto winSize = CCDirector::sharedDirector()->getWinSize();
         auto center = winSize / 2.f;
 
-        auto const center2 = CCSize(440, 280)/2;
+        auto const center2 = CCSize(440, 180)/2;
+
+        auto applySprite = ButtonSprite::create("Apply", "bigFont.fnt", "GJ_button_01.png", .60f);
+        applySprite->setScale(0.85f);
 
         auto applyBtn = CCMenuItemSpriteExtra::create(
-            ButtonSprite::create("Apply", "bigFont.fnt", "GJ_button_01.png", .75f),
+            applySprite,
             this,
             menu_selector(FunctionToolPopup::on_apply)
         );
 
+        auto settingsSprite = CCSprite::createWithSpriteFrameName("GJ_optionsBtn_001.png");
+        settingsSprite->setScale(0.7f);
 
         auto settingsBtn = CCMenuItemSpriteExtra::create(
-            CCSprite::createWithSpriteFrameName("GJ_optionsBtn02_001.png"),
+            settingsSprite,
             this,
-            menu_selector(FunctionToolPopup::onScale)
+            menu_selector(FunctionToolPopup::onSettings)
         );
         auto scaleBtn = CCMenuItemSpriteExtra::create(
             EditorButtonSprite::createWithSpriteFrameName("edit_scaleXYBtn_001.png", .90f),
@@ -222,10 +296,13 @@ public:
             menu_selector(FunctionToolPopup::onHsv)
         );
 
-        applyBtn->setPosition(center2 + ccp(0, -110));
-        scaleBtn->setPosition(center2 + ccp(110, -20));
-        hsvBtn->setPosition(center2 + ccp(180, -20));
+        applyBtn->setPosition(center2 + ccp(110, -63));
+        settingsBtn->setPosition(center2 + ccp(-180, -63));
+        scaleBtn->setPosition(center2 + ccp(-110, -63));
+        hsvBtn->setPosition(center2 + ccp(-40, -63));
+
         m_buttonMenu->addChild(applyBtn);
+        m_buttonMenu->addChild(settingsBtn);
         m_buttonMenu->addChild(scaleBtn);
         m_buttonMenu->addChild(hsvBtn);
 
@@ -233,40 +310,40 @@ public:
 
         m_input_x = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_x->setLabel("Position x(t) =");
-        m_input_x->setPosition(center + ccp(-110, 80));
+        m_input_x->setPosition(center + ccp(-110, 25));
         m_input_x->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_x);
 
         m_input_y = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_y->setLabel("Position y(t) =");
-        m_input_y->setPosition(center + ccp(110, 80));
+        m_input_y->setPosition(center + ccp(110, 25));
         m_input_y->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_y);
 
         m_input_rotation = TextInput::create(input_width, "0.0", "chatFont.fnt");
         m_input_rotation->setLabel("Rotation(t) =");
-        m_input_rotation->setPosition(center + ccp(-110, -15));
+        m_input_rotation->setPosition(center + ccp(-110, -25));
         m_input_rotation->setCommonFilter(CommonFilter::Any);
         this->addChild(m_input_rotation);
 
         m_input_n = TextInput::create(60, "", "chatFont.fnt");
         m_input_n->setLabel("Amount: ");
         m_input_n->setString("20", false);
-        m_input_n->setPosition(center + ccp(40, -70));
+        m_input_n->setPosition(center + ccp(40, -25));
         m_input_n->setCommonFilter(CommonFilter::Uint);
         this->addChild(m_input_n);
 
         m_input_start = TextInput::create(60, "", "chatFont.fnt");
         m_input_start->setLabel("Start t: ");
         m_input_start->setString("0.0", false);
-        m_input_start->setPosition(center + ccp(110, -70));
+        m_input_start->setPosition(center + ccp(110, -25));
         m_input_start->setCommonFilter(CommonFilter::Float);
         this->addChild(m_input_start);
 
         m_input_end = TextInput::create(60, "", "chatFont.fnt");
         m_input_end->setLabel("End t: ");
         m_input_end->setString("5.0", false);
-        m_input_end->setPosition(center + ccp(180, -70));
+        m_input_end->setPosition(center + ccp(180, -25));
         m_input_end->setCommonFilter(CommonFilter::Float);
         this->addChild(m_input_end);
 
@@ -302,6 +379,16 @@ public:
 
         sub->m_input_scale_x->setString(this->m_scale_x, false);
         sub->m_input_scale_y->setString(this->m_scale_y, false);
+
+        sub->show();
+    }
+
+    void onSettings(CCObject*) {
+        auto sub = SettingsPopup::create();
+        sub->m_functool = this;
+
+        sub->m_input_abs_scaling->toggle(m_abs_scaling);
+        sub->m_input_abs_rotation->toggle(m_abs_rotation);
 
         sub->show();
     }
@@ -477,18 +564,24 @@ public:
             auto current = copyObjects(selected);
             auto current_center = center+pos;
 
+
+
             for (int j = 0; j < current->count(); j++) {
                 GameObject* obj = static_cast<GameObject*>(current->objectAtIndex(j));
                 
                 ui->moveObject(obj, ccp(pos.x, pos.y));
+            
+                if (m_abs_rotation) {
+                    ui->rotateObjects(CCArray::createWithObject(obj), rotation, obj->getRealPosition());
+                }
+
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
                 obj->m_baseColor->m_hsv.v += base_value;
             }
-
-            ui->scaleObjects(current, scale_x, scale_y, current_center, ObjectScaleType::XY, false);
-            ui->rotateObjects(current, rotation, current_center);
-
+            
+            ui->scaleObjects(current, scale_x, scale_y, current_center, ObjectScaleType::XY, m_abs_scaling);
+            if (!m_abs_rotation) ui->rotateObjects(current, rotation, current_center);
             
 			objs->addObjectsFromArray(current);
 		}
