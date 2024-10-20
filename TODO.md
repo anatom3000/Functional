@@ -1,5 +1,4 @@
 ## TODO (maybe (if I got time (probably not)))
-- FIXME: relative scaling when rotating objects
 - absolute rotation
 - absolute scaling
 - use robtop units

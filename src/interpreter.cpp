@@ -168,74 +168,57 @@ struct Expr {
                 }
             }
             case ExprKind::Application: {
-                // TODO: rewrite this mess
-                if (this->name == "random") {
-                    return double(std::rand()) / double(RAND_MAX);
-                }
-                
-                if (this->args.size() < 0) return NAN;
-                double arg = this->args[0].interpret(t);
-                if (std::isnan(arg)) return NAN;
+                switch (this->args.size()) {
+                    case 0: {
+                        if (this->name == "random") {
+                            return double(std::rand()) / double(RAND_MAX);
+                        }
 
-                if (this->name == "sin") {
-                    return std::sin(PI*arg/180.0);
-                } else if (this->name == "cos") {
-                    return std::cos(PI*arg/180.0);
-                } else if (this->name == "tan") {
-                    return std::tan(PI*arg/180.0);
-                } else if (this->name == "acos") {
-                    return 180.0*std::acos(arg)/PI;
-                } else if (this->name == "asin") {
-                    return 180.0*std::asin(arg)/PI;
-                } else if (this->name == "atan") {
-                    return 180.0*std::atan(arg)/PI;
-                } else if (this->name == "sqrt") {
-                    return std::sqrt(arg);
-                } else if (this->name == "cbrt") {
-                    return std::cbrt(arg);
-                } else if (this->name == "exp") {
-                    return std::exp(arg);
-                } else if (this->name == "ln") {
-                    return std::log(arg);
-                } else if (this->name == "log10") {
-                    return std::log10(arg);
-                } else if (this->name == "log2") {
-                    return std::log2(arg);
-                } else if (this->name == "cosh") {
-                    return std::cosh(arg);
-                } else if (this->name == "sinh") {
-                    return std::sinh(arg);
-                } else if (this->name == "tanh") {
-                    return std::tanh(arg);
-                } else if (this->name == "abs") {
-                    return std::abs(arg);
-                } else if (this->name == "floor") {
-                    return std::floor(arg);
-                } else if (this->name == "ceil") {
-                    return std::ceil(arg);
-                } else if (this->name == "round") {
-                    return std::round(arg);
-                } else if (this->name == "sgn") {
-                    if (arg == 0.0) {
-                        return 0.0;
-                    } else if (arg > 0.0) {
-                        return 1.0;
-                    } else {
-                        return -1.0;
                     }
-                }
+                    case 1: {
+                        double arg = this->args[0].interpret(t);
+                        if (std::isnan(arg)) return NAN;
 
-                if (this->args.size() < 1) return NAN;
-                double arg2 = this->args[1].interpret(t);
-                if (std::isnan(arg2)) return NAN;
+                        if      (this->name == "sin")   return std::sin(PI*arg/180.0);
+                        else if (this->name == "cos")   return std::cos(PI*arg/180.0);
+                        else if (this->name == "tan")   return std::tan(PI*arg/180.0);
+                        else if (this->name == "acos")  return 180.0*std::acos(arg)/PI;
+                        else if (this->name == "asin")  return 180.0*std::asin(arg)/PI;
+                        else if (this->name == "atan")  return 180.0*std::atan(arg)/PI;
+                        else if (this->name == "sqrt")  return std::sqrt(arg);
+                        else if (this->name == "cbrt")  return std::cbrt(arg);
+                        else if (this->name == "exp")   return std::exp(arg);
+                        else if (this->name == "ln")    return std::log(arg);
+                        else if (this->name == "log10") return std::log10(arg);
+                        else if (this->name == "log2")  return std::log2(arg);
+                        else if (this->name == "cosh")  return std::cosh(arg);
+                        else if (this->name == "sinh")  return std::sinh(arg);
+                        else if (this->name == "tanh")  return std::tanh(arg);
+                        else if (this->name == "abs")   return std::abs(arg);
+                        else if (this->name == "floor") return std::floor(arg);
+                        else if (this->name == "ceil")  return std::ceil(arg);
+                        else if (this->name == "round") return std::round(arg);
+                        else if (this->name == "sgn") {
+                            if (arg == 0.0) {
+                                return 0.0;
+                            } else if (arg > 0.0) {
+                                return 1.0;
+                            } else {
+                                return -1.0;
+                            }
+                        }
+                    }
+                    case 2: {
+                        double arg1 = this->args[0].interpret(t);
+                        if (std::isnan(arg1)) return NAN;
+                        double arg2 = this->args[1].interpret(t);
+                        if (std::isnan(arg2)) return NAN;
 
-                if (this->name == "min") {
-                    return std::min(arg, arg2);
-                } else if (this->name == "max") {
-                    return std::max(arg, arg2);
+                        if      (this->name == "min") return std::min(arg1, arg2);
+                        else if (this->name == "max") return std::max(arg1, arg2);
+                    }
+                    default: return NAN;
                 }
-                
-                return NAN;
             }
             case ExprKind::Neg: {
                 double arg = this->left->interpret(t);

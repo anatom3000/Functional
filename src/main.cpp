@@ -205,7 +205,7 @@ public:
             menu_selector(FunctionToolPopup::on_apply)
         );
         auto scaleBtn = CCMenuItemSpriteExtra::create(
-            EditorButtonSprite::createWithSpriteFrameName("edit_scaleXYBtn_001.png", .95f),
+            EditorButtonSprite::createWithSpriteFrameName("edit_scaleXYBtn_001.png", .90f),
             this,
             menu_selector(FunctionToolPopup::onScale)
         );
@@ -357,49 +357,6 @@ public:
         return std::get<0>(std::move(expr_result));
     }
 
-    void scaleRelative(GameObject* obj, CCPoint relative, float scale_x, float scale_y) {
-		auto* editor = GameManager::sharedState()->getEditorLayer();
-		EditorUI* ui = editor->m_editorUI;
-
-        auto pos = obj->getRealPosition();
-
-        pos -= relative;
-        pos.x *= scale_x;
-        pos.y *= scale_y;
-        pos += relative;
-
-        obj->setPosition(pos);
-    }
-
-    void rotateRelative(GameObject* obj, CCPoint relative, float angle_rel) {
-        if (angle_rel < 10e-6) return;
-
-		auto* editor = GameManager::sharedState()->getEditorLayer();
-		EditorUI* ui = editor->m_editorUI;
-
-        obj->setRRotation(angle_rel);
-
-        auto pos = obj->getRealPosition();
-        auto pi = 3.141592;
-
-        ui->moveObject(obj, -pos);
-
-        pos -= relative;
-
-        auto c = std::cos(pi * angle_rel / 180.f);
-        auto s = std::sin(pi * angle_rel / 180.f);
-
-        auto x = pos.x = pos.x * c - pos.y * s;
-        auto y = pos.x * s + pos.y * c;
-
-        pos.x = x;
-        pos.y = y;
-        
-        pos += relative;
-        ui->moveObject(obj, pos);
-        
-    }
-
     CCPoint centerOf(CCArray* objects) {
         auto first_pos = static_cast<GameObject*>(objects->objectAtIndex(0))->getRealPosition();
 
@@ -419,29 +376,31 @@ public:
     }
 
 	void perform() {
-        #define parse_field(out, input, field_name, default) {\
-            auto expr_result = this->parse_input(input, field_name, default);\
-            if (expr_result.has_value()) {\
-                out = std::move(expr_result.value());\
-            } else {\
-                return;\
-            }\
-        }
+        #define parse_field(out, input, field_name, default)\
+            Expr out;\
+            {\
+                auto expr_result = this->parse_input(input, field_name, default);\
+                if (expr_result.has_value()) {\
+                    out = std::move(expr_result.value());\
+                } else {\
+                    return;\
+                }\
+            }
 
         #define zero { .kind = ExprKind::Literal, .value = 0.0 }
         #define one  { .kind = ExprKind::Literal, .value = 1.0 }
 
-        Expr x_expr;                    parse_field(x_expr, m_input_x->getString(), "position x(t)", zero);
-        Expr y_expr;                    parse_field(y_expr, m_input_y->getString(), "position x(t)", zero);
-        Expr scale_x_expr;              parse_field(scale_x_expr, m_scale_x, "scale x(t)", one);
-        Expr scale_y_expr;              parse_field(scale_y_expr, m_scale_y, "scale y(t)", one);
-        Expr rotation_expr;             parse_field(rotation_expr, m_input_rotation->getString(), "rotation(t)", zero);
-        Expr base_hue_expr;             parse_field(base_hue_expr, m_base_hue, "base hue(t)", zero);
-        Expr base_saturation_expr;      parse_field(base_saturation_expr, m_base_saturation, "base saturation(t)", zero);
-        Expr base_value_expr;           parse_field(base_value_expr, m_base_value, "base value(t)", zero);
-        Expr detail_hue_expr;           parse_field(detail_hue_expr, m_detail_hue, "detail hue(t)", zero);
-        Expr detail_saturation_expr;    parse_field(detail_saturation_expr, m_detail_saturation, "detail saturation(t)", zero);
-        Expr detail_value_expr;         parse_field(detail_value_expr, m_detail_value, "detail value(t)", zero);
+        parse_field(x_expr,                 m_input_x->getString(),         "position x(t)",        zero);
+        parse_field(y_expr,                 m_input_y->getString(),         "position x(t)",        zero);
+        parse_field(scale_x_expr,           m_scale_x,                      "scale x(t)",           one );
+        parse_field(scale_y_expr,           m_scale_y,                      "scale y(t)",           one );
+        parse_field(rotation_expr,          m_input_rotation->getString(),  "rotation(t)",          zero);
+        parse_field(base_hue_expr,          m_base_hue,                     "base hue(t)",          zero);
+        parse_field(base_saturation_expr,   m_base_saturation,              "base saturation(t)",   zero);
+        parse_field(base_value_expr,        m_base_value,                   "base value(t)",        zero);
+        parse_field(detail_hue_expr,        m_detail_hue,                   "detail hue(t)",        zero);
+        parse_field(detail_saturation_expr, m_detail_saturation,            "detail saturation(t)", zero);
+        parse_field(detail_value_expr,      m_detail_value,                 "detail value(t)",      zero);
 
         std::string steps_str = m_input_n->getString();
         steps_str.erase(std::remove_if(steps_str.begin(), steps_str.end(), isspace), steps_str.end());
@@ -488,7 +447,7 @@ public:
 		for (float i = 0; i < steps; i++) {
             float t = start + (end - start) * (float)i/(float)steps;
 
-            CCPoint pos = ccp(30.0*x_expr.interpret(t), 30.0*y_expr.interpret(t));
+            CCPoint pos = ccp(30.0 * x_expr.interpret(t), 30.0 * y_expr.interpret(t));
             float rotation = rotation_expr.interpret(t);
             float scale_x = scale_x_expr.interpret(t);
             float scale_y = scale_y_expr.interpret(t);
@@ -510,18 +469,18 @@ public:
             
             auto current = copyObjects(selected);
             auto current_center = center+pos;
-            ui->transformObjects(current, current_center, scale_x, scale_y, 0.f, 0.f, 0.f, 0.f);
+
             for (int j = 0; j < current->count(); j++) {
                 GameObject* obj = static_cast<GameObject*>(current->objectAtIndex(j));
-                GameObject* first = static_cast<GameObject*>(current->objectAtIndex(0));
-
-                ui->moveObject(obj, current_center+ccp(-current_center.x + scale_x*current_center.x, -current_center.y + scale_y*current_center.y));
-                this->rotateRelative(obj, current_center, rotation);
-                //this->scaleRelative(obj, current_center, scale_x, scale_y);
+                
+                ui->moveObject(obj, ccp(pos.x, pos.y));
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
                 obj->m_baseColor->m_hsv.v += base_value;
             }
+
+            ui->scaleObjects(current, scale_x, scale_y, current_center, ObjectScaleType::XY, false);
+            ui->rotateObjects(current, rotation, current_center);
 
             
 			objs->addObjectsFromArray(current);
