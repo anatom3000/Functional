@@ -121,12 +121,12 @@ public:
             c.use_robtop_units ? "use robtop units, "  : "",
             c.use_radians ?      "use radians, "       : "",
             c.delete_original ?  "delete original, "   : ""
-        ),
+        );
 
         if (toggles_content.length() != 0) {
-            toggles_content->pop_back();
-            toggles_content->pop_back();
-            toggles_content->push_back('.');
+            toggles_content.pop_back();
+            toggles_content.pop_back();
+            toggles_content.push_back('.');
 
             toggles_content[0] = static_cast<char>(
                 std::toupper(static_cast<unsigned char>(toggles_content[0]))

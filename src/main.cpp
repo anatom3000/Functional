@@ -117,8 +117,12 @@ public:
             menu_selector(FunctionToolPopup::onHsv)
         );
 
+        auto historySprite = CCSprite::createWithSpriteFrameName("accountBtn_myLevels_001.png");
+        historySprite->setScale(0.75f);
+
         auto historyBtn = CCMenuItemSpriteExtra::create(
-            CCSprite::createWithSpriteFrameName("GJ_timeIcon_001.png"),
+            //CCSprite::createWithSpriteFrameName("GJ_timeIcon_001.png"),
+            historySprite,
             this,
             menu_selector(FunctionToolPopup::onHistory)
         );
