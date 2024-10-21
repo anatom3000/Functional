@@ -22,6 +22,7 @@ public:
     bool m_abs_rotation;
     bool m_use_robtop_units;
     bool m_use_radians;
+    bool m_delete_original;
 
     std::string m_scale_x;
     std::string m_scale_y;
@@ -89,6 +90,7 @@ public:
             entry(1, "Absolute rotation", false);
             entry(2, "Use Robtop units", true);
             entry(3, "Use radians", true);
+            entry(4, "Delete original", true);
 
             return true;
         }
@@ -96,8 +98,9 @@ public:
         void bubbleCallback(CCObject* sender) {
             const char* message = nullptr;
             switch (sender->getTag()) {
-                case 2: message = "Use 1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block"; break;
-                case 3: message = "Use radians instead of degrees \nin trig. functions and in the rotation field."; break;
+                case 2: message = "Use 1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block."; break;
+                case 3: message = "Use radians instead of degrees \nin trig functions and in the rotation field."; break;
+                case 4: message = "Delete the selected objects after generating copies."; break;
             }
             
             if (message == nullptr) return;
@@ -115,6 +118,7 @@ public:
             m_functool->m_abs_rotation     = m_inputs[1]->isToggled();
             m_functool->m_use_robtop_units = m_inputs[2]->isToggled();
             m_functool->m_use_radians      = m_inputs[3]->isToggled();
+            m_functool->m_delete_original  = m_inputs[4]->isToggled();
             Popup::onClose(obj);
         }
     };
@@ -426,6 +430,7 @@ public:
         sub->m_inputs[1]->toggle(m_abs_rotation);
         sub->m_inputs[2]->toggle(m_use_robtop_units);
         sub->m_inputs[3]->toggle(m_use_radians);
+        sub->m_inputs[4]->toggle(m_delete_original);
 
         sub->show();
     }
@@ -646,6 +651,9 @@ public:
 			objs->addObjectsFromArray(current);
 		}
 		editor->m_undoObjects->addObject(UndoObject::createWithArray(objs, UndoCommand::Paste));
+
+        if (m_delete_original) ui->onDeleteSelected(null);
+
 		ui->selectObjects(objs, /* ignoreSelectFilter: */ true);
 		this->keyBackClicked();
 	}
