@@ -21,6 +21,7 @@ public:
     bool m_abs_scaling;
     bool m_abs_rotation;
     bool m_use_robtop_units;
+    bool m_use_radians;
 
     std::string m_scale_x;
     std::string m_scale_y;
@@ -87,6 +88,7 @@ public:
             entry(0, "Absolute scaling", false);
             entry(1, "Absolute rotation", false);
             entry(2, "Use Robtop units", true);
+            entry(3, "Use radians", true);
 
             return true;
         }
@@ -94,7 +96,8 @@ public:
         void bubbleCallback(CCObject* sender) {
             const char* message = nullptr;
             switch (sender->getTag()) {
-                case 2: message = "1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block"; break;
+                case 2: message = "Use 1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block"; break;
+                case 3: message = "Use radians instead of degrees \nin trig. functions and in the rotation field."; break;
             }
             
             if (message == nullptr) return;
@@ -108,9 +111,10 @@ public:
         }
 
         void onClose(CCObject* obj) override {
-            m_functool->m_abs_scaling       = m_inputs[0]->isToggled();
-            m_functool->m_abs_rotation      = m_inputs[1]->isToggled();
-            m_functool->m_use_robtop_units  = m_inputs[2]->isToggled();
+            m_functool->m_abs_scaling      = m_inputs[0]->isToggled();
+            m_functool->m_abs_rotation     = m_inputs[1]->isToggled();
+            m_functool->m_use_robtop_units = m_inputs[2]->isToggled();
+            m_functool->m_use_radians      = m_inputs[3]->isToggled();
             Popup::onClose(obj);
         }
     };
@@ -421,6 +425,7 @@ public:
         sub->m_inputs[0]->toggle(m_abs_scaling);
         sub->m_inputs[1]->toggle(m_abs_rotation);
         sub->m_inputs[2]->toggle(m_use_robtop_units);
+        sub->m_inputs[3]->toggle(m_use_radians);
 
         sub->show();
     }
@@ -572,18 +577,23 @@ public:
 
 		for (float i = 0; i < steps; i++) {
             float t = start + (end - start) * (float)i/(float)steps;
+
+            InterpreterConfig c = {
+                .t = t,
+                .use_radians = m_use_radians,
+            };
             
             float factor = m_use_robtop_units ? 1.0 : 30.0;
-            CCPoint pos = ccp(factor * x_expr.interpret(t), factor * y_expr.interpret(t));
-            float rotation = rotation_expr.interpret(t);
-            float scale_x = scale_x_expr.interpret(t);
-            float scale_y = scale_y_expr.interpret(t);
-            float base_hue = base_hue_expr.interpret(t);
-            float base_saturation = base_saturation_expr.interpret(t);
-            float base_value = base_value_expr.interpret(t);
-            float detail_hue = detail_hue_expr.interpret(t);
-            float detail_saturation = detail_saturation_expr.interpret(t);
-            float detail_value = detail_value_expr.interpret(t);
+            CCPoint pos = ccp(factor * x_expr.interpret(c), factor * y_expr.interpret(c));
+            float rotation = rotation_expr.interpret(c);
+            float scale_x = scale_x_expr.interpret(c);
+            float scale_y = scale_y_expr.interpret(c);
+            float base_hue = base_hue_expr.interpret(c);
+            float base_saturation = base_saturation_expr.interpret(c);
+            float base_value = base_value_expr.interpret(c);
+            float detail_hue = detail_hue_expr.interpret(c);
+            float detail_saturation = detail_saturation_expr.interpret(c);
+            float detail_value = detail_value_expr.interpret(c);
             
             bool ok = true;
             for (auto val : {pos.x, pos.y, rotation, scale_x, scale_y, base_hue, base_saturation, base_value, detail_hue, detail_saturation, detail_value}) {

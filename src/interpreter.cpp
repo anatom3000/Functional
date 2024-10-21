@@ -140,7 +140,12 @@ enum class ExprKind {
     Pow,
 };
 
-double PI = 3.141592;
+double PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470;
+
+struct InterpreterConfig {
+    double t;
+    bool use_radians;
+};
 
 struct Expr {
     ExprKind kind;
@@ -155,14 +160,16 @@ struct Expr {
     // Application
     std::vector<Expr> args;
 
-    double interpret(double t) {
+    double interpret(InterpreterConfig c) {
         switch (this->kind) {
             case ExprKind::Literal: {
                 return this->value;
             }
             case ExprKind::Variable: {
                 if (this->name == "t") {
-                    return t;
+                    return c.t;
+                } else if (this->name == "pi") {
+                    return PI;
                 } else {
                     return NAN;
                 }
@@ -176,15 +183,19 @@ struct Expr {
 
                     }
                     case 1: {
-                        double arg = this->args[0].interpret(t);
+                        double arg = this->args[0].interpret(c);
+
+                        double trig_arg = c.use_radians ? arg : PI*arg/180.0;
+                        #define trig_ret(y) ( c.use_radians ? (y) : 180.0*(y)/PI )
+
                         if (std::isnan(arg)) return NAN;
 
-                        if      (this->name == "sin")   return std::sin(PI*arg/180.0);
-                        else if (this->name == "cos")   return std::cos(PI*arg/180.0);
-                        else if (this->name == "tan")   return std::tan(PI*arg/180.0);
-                        else if (this->name == "acos")  return 180.0*std::acos(arg)/PI;
-                        else if (this->name == "asin")  return 180.0*std::asin(arg)/PI;
-                        else if (this->name == "atan")  return 180.0*std::atan(arg)/PI;
+                        if      (this->name == "sin")   return std::sin(trig_arg);
+                        else if (this->name == "cos")   return std::cos(trig_arg);
+                        else if (this->name == "tan")   return std::tan(trig_arg);
+                        else if (this->name == "acos")  return trig_ret(std::acos(arg));
+                        else if (this->name == "asin")  return trig_ret(std::asin(arg));
+                        else if (this->name == "atan")  return trig_ret(std::atan(arg));
                         else if (this->name == "sqrt")  return std::sqrt(arg);
                         else if (this->name == "cbrt")  return std::cbrt(arg);
                         else if (this->name == "exp")   return std::exp(arg);
@@ -209,9 +220,9 @@ struct Expr {
                         }
                     }
                     case 2: {
-                        double arg1 = this->args[0].interpret(t);
+                        double arg1 = this->args[0].interpret(c);
                         if (std::isnan(arg1)) return NAN;
-                        double arg2 = this->args[1].interpret(t);
+                        double arg2 = this->args[1].interpret(c);
                         if (std::isnan(arg2)) return NAN;
 
                         if      (this->name == "min") return std::min(arg1, arg2);
@@ -221,38 +232,38 @@ struct Expr {
                 }
             }
             case ExprKind::Neg: {
-                double arg = this->left->interpret(t);
+                double arg = this->left->interpret(c);
                 return -arg;
             }
             case ExprKind::Add: {
-                double left = this->left->interpret(t);
-                double right = this->right->interpret(t);
+                double left = this->left->interpret(c);
+                double right = this->right->interpret(c);
 
                 return left + right;
             }
             case ExprKind::Sub: {
-                double left = this->left->interpret(t);
-                double right = this->right->interpret(t);
+                double left = this->left->interpret(c);
+                double right = this->right->interpret(c);
 
                 return left - right;
             }
             case ExprKind::Mul: {
-                double left = this->left->interpret(t);
-                double right = this->right->interpret(t);
+                double left = this->left->interpret(c);
+                double right = this->right->interpret(c);
 
                 return left * right;
             }
             case ExprKind::Div: {
-                double left = this->left->interpret(t);
-                double right = this->right->interpret(t);
+                double left = this->left->interpret(c);
+                double right = this->right->interpret(c);
 
                 if (std::abs(right) < 10e-6) return NAN;
 
                 return left / right;
             }
             case ExprKind::Pow: {
-                double left = this->left->interpret(t);
-                double right = this->right->interpret(t);
+                double left = this->left->interpret(c);
+                double right = this->right->interpret(c);
 
                 if (std::isnan(left) || std::isnan(right)) return NAN;
 
