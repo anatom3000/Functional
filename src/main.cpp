@@ -431,6 +431,8 @@ public:
     }
 
     CCArray* copyObjects(CCArray* objects) {
+        // hack to copy objects using the in-game copy+paste
+
 		auto* editor = GameManager::sharedState()->getEditorLayer();
 		EditorUI* ui = editor->m_editorUI;
 
@@ -504,6 +506,21 @@ public:
         }
 
         return ccp((x_min+x_max)/2.f, (y_min+y_max)/2.f);
+    }
+
+    void scaleRelative(GameObject* obj, CCPoint relative, float scale_x, float scale_y) {
+		auto* editor = GameManager::sharedState()->getEditorLayer();
+		EditorUI* ui = editor->m_editorUI;
+
+        auto pos = obj->getRealPosition();
+        ui->moveObject(obj, -pos);
+
+        pos -= relative;
+        pos.x *= scale_x;
+        pos.y *= scale_y;
+        pos += relative;
+        
+        ui->moveObject(obj, pos);
     }
 
 	void perform() {
@@ -607,23 +624,23 @@ public:
             auto current = copyObjects(selected);
             auto current_center = center+pos;
 
-
-
             for (int j = 0; j < current->count(); j++) {
                 GameObject* obj = static_cast<GameObject*>(current->objectAtIndex(j));
                 
                 ui->moveObject(obj, ccp(pos.x, pos.y));
-            
-                if (m_abs_rotation) {
-                    ui->rotateObjects(CCArray::createWithObject(obj), rotation, obj->getRealPosition());
-                }
+                
+                auto obj_single = CCArray::createWithObject(obj);
+
+        
+                ui->scaleObjects(obj_single, scale_x*obj->getRScaleX(), scale_y*obj->getRScaleY(), current_center, ObjectScaleType::XY, /* absoluteScaling: */ true);
+                if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);
+                if (m_abs_rotation) ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
 
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
                 obj->m_baseColor->m_hsv.v += base_value;
             }
             
-            ui->scaleObjects(current, scale_x, scale_y, current_center, ObjectScaleType::XY, m_abs_scaling);
             if (!m_abs_rotation) ui->rotateObjects(current, rotation, current_center);
             
 			objs->addObjectsFromArray(current);
