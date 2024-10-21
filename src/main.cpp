@@ -8,6 +8,8 @@ using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
 struct ToolConfig {
+    std::string name;
+
     std::string x;
     std::string y;
     std::string rotation;
@@ -64,6 +66,7 @@ public:
     #include "popups/settings.cpp"
     #include "popups/scale.cpp"
     #include "popups/hsv.cpp"
+    #include "popups/history.cpp"
 
 
 	static auto* create() {
@@ -117,7 +120,7 @@ public:
         auto historyBtn = CCMenuItemSpriteExtra::create(
             CCSprite::createWithSpriteFrameName("GJ_timeIcon_001.png"),
             this,
-            menu_selector(FunctionToolPopup::onScale)
+            menu_selector(FunctionToolPopup::onHistory)
         );
 
         applyBtn->setPosition(center2 + ccp(110, -63));
@@ -218,6 +221,12 @@ public:
         sub->m_inputs[2]->toggle(m_use_robtop_units);
         sub->m_inputs[3]->toggle(m_use_radians);
         sub->m_inputs[4]->toggle(m_delete_original);
+
+        sub->show();
+    }
+
+    void onHistory(CCObject*) {
+        auto sub = HistoryPopup::create(this);
 
         sub->show();
     }
