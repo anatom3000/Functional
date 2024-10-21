@@ -7,6 +7,33 @@ using namespace geode;
 using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
+struct ToolConfig {
+    std::string x;
+    std::string y;
+    std::string rotation;
+
+    std::string n;
+    std::string start;
+    std::string end;
+
+    bool abs_scaling;
+    bool abs_rotation;
+    bool use_robtop_units;
+    bool use_radians;
+    bool delete_original;
+
+    std::string scale_x;
+    std::string scale_y;
+
+    std::string base_hue;
+    std::string base_saturation;
+    std::string base_value;
+    std::string detail_hue;
+    std::string detail_saturation;
+    std::string detail_value;
+
+};
+
 
 class FunctionToolPopup : public geode::Popup<> {
 public:
@@ -34,258 +61,10 @@ public:
     std::string m_detail_saturation;
     std::string m_detail_value;
 
+    #include "popups/settings.cpp"
+    #include "popups/scale.cpp"
+    #include "popups/hsv.cpp"
 
-    class SettingsPopup : public geode::Popup<> {
-    public:
-        FunctionToolPopup* m_functool;
-        std::vector<CCMenuItemToggler*> m_inputs;
-        CCMenuItemToggler* m_input_abs_scaling;
-        CCMenuItemToggler* m_input_abs_rotation;
-
-        static auto* create() {
-            auto* node = new (std::nothrow) SettingsPopup();
-            if (node && node->initAnchored(220, 280)) {
-                node->autorelease();
-            } else {
-                delete node;
-                node = nullptr;
-            }
-            return node;
-        }
-
-        bool setup() override {
-            m_noElasticity = true;
-            this->setTitle("Options");
-
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-            auto center = winSize / 2.f;
-
-            auto const center2 = CCSize(220, 280) / 2;
-
-            #define entry(i, name, has_info) {\
-                auto input = m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, nullptr, 0.6f);\
-                input->setPosition(center2 + ccp(-72, 90-24*i));\
-                m_buttonMenu->addChild(input);\
-                m_inputs.push_back(input);\
-                auto label = CCLabelBMFont::create(name, "bigFont.fnt");\
-                label->setScale(0.4f);\
-                label->setPosition(center2 + ccp(-56.0+label->getScaledContentSize().width/2.0, 91-24*i));\
-                m_buttonMenu->addChild(label);\
-                if (has_info) {\
-                    auto bubble = CCMenuItemSpriteExtra::create(\
-                        bubbleSprite,\
-                        this,\
-                        menu_selector(SettingsPopup::bubbleCallback)\
-                    );\
-                    bubble->setTag(i);\
-                    bubble->setPosition(center2 + ccp(-94, 90-24*i));\
-                    m_buttonMenu->addChild(bubble);\
-                }\
-            }
-
-            auto bubbleSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
-            bubbleSprite->setScale(0.5f);
-
-            entry(0, "Absolute scaling", false);
-            entry(1, "Absolute rotation", false);
-            entry(2, "Use Robtop units", true);
-            entry(3, "Use radians", true);
-            entry(4, "Delete original", true);
-
-            return true;
-        }
-
-        void bubbleCallback(CCObject* sender) {
-            const char* message = nullptr;
-            switch (sender->getTag()) {
-                case 2: message = "Use 1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block."; break;
-                case 3: message = "Use radians instead of degrees \nin trig functions and in the rotation field."; break;
-                case 4: message = "Delete the selected objects after generating copies."; break;
-            }
-            
-            if (message == nullptr) return;
-        
-            FLAlertLayer::create(
-                "Info",
-                message,
-                "OK"\
-            )->show();
-
-        }
-
-        void onClose(CCObject* obj) override {
-            m_functool->m_abs_scaling      = m_inputs[0]->isToggled();
-            m_functool->m_abs_rotation     = m_inputs[1]->isToggled();
-            m_functool->m_use_robtop_units = m_inputs[2]->isToggled();
-            m_functool->m_use_radians      = m_inputs[3]->isToggled();
-            m_functool->m_delete_original  = m_inputs[4]->isToggled();
-            Popup::onClose(obj);
-        }
-    };
-
-
-    class ScalePopup : public geode::Popup<> {
-    public:
-        TextInput* m_input_scale_x;
-        TextInput* m_input_scale_y;
-        FunctionToolPopup* m_functool;
-
-        static auto* create() {
-            auto* node = new (std::nothrow) ScalePopup();
-            if (node && node->initAnchored(220, 180)) {
-                node->autorelease();
-            } else {
-                delete node;
-                node = nullptr;
-            }
-            return node;
-        }
-
-        bool setup() override {
-            m_noElasticity = true;
-            this->setTitle("Scale");
-
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-            auto center = winSize / 2.f;
-
-            auto const center2 = CCSize(220, 280) / 2;
-
-
-            auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
-            okSprite->setScale(0.85f);
-
-            auto okBtn = CCMenuItemSpriteExtra::create(
-                okSprite,
-                this,
-                menu_selector(HsvPopup::onClose)
-            );
-            okBtn->setPosition(center2 + ccp(0, -112));
-            m_buttonMenu->addChild(okBtn);
-
-            int input_width = 200;
-
-            m_input_scale_x = TextInput::create(input_width, "1.0", "chatFont.fnt");
-            m_input_scale_x->setLabel("Scale x(t) =");
-            m_input_scale_x->setPosition(center + ccp(0, 30));
-            m_input_scale_x->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_scale_x);
-
-            m_input_scale_y = TextInput::create(input_width, "1.0", "chatFont.fnt");
-            m_input_scale_y->setLabel("Scale y(t) =");
-            m_input_scale_y->setPosition(center + ccp(0, -20));
-            m_input_scale_y->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_scale_y);
-
-            return true;
-        }
-
-        void onClose(CCObject* obj) override {
-            this->m_functool->m_scale_x = this->m_input_scale_x->getString();
-            this->m_functool->m_scale_y = this->m_input_scale_y->getString();
-
-            Popup::onClose(obj);
-        }
-    };
-
-
-    class HsvPopup : public geode::Popup<> {
-    public:
-        TextInput* m_input_base_hue;
-        TextInput* m_input_base_saturation;
-        TextInput* m_input_base_value;
-        TextInput* m_input_detail_hue;
-        TextInput* m_input_detail_saturation;
-        TextInput* m_input_detail_value;
-        FunctionToolPopup* m_functool;
-
-        static auto* create() {
-            auto* node = new (std::nothrow) HsvPopup();
-            if (node && node->initAnchored(440, 180)) {
-                node->autorelease();
-            } else {
-                delete node;
-                node = nullptr;
-            }
-            return node;
-        }
-
-        bool setup() override {
-            m_noElasticity = true;
-            this->setTitle("HSV");
-
-            auto winSize = CCDirector::sharedDirector()->getWinSize();
-            auto center = winSize / 2.f;
-
-            auto const center2 = CCSize(440, 280) / 2;
-
-            auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
-            okSprite->setScale(0.85f);
-
-            auto okBtn = CCMenuItemSpriteExtra::create(
-                okSprite,
-                this,
-                menu_selector(HsvPopup::onClose)
-            );
-
-            okBtn->setPosition(center2 + ccp(0, -112));
-            m_buttonMenu->addChild(okBtn);
-            okBtn->setPosition(center2 + ccp(0, -112));
-            m_buttonMenu->addChild(okBtn);
-
-            int input_width = 205;
-
-            m_input_base_hue = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_base_hue->setLabel("Base hue(t) =");
-            m_input_base_hue->setPosition(center + ccp(-140, 25));
-            m_input_base_hue->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_base_hue);
-
-            m_input_base_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_base_saturation->setLabel("Base saturation(t) =");
-            m_input_base_saturation->setPosition(center + ccp(0, 25));
-            m_input_base_saturation->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_base_saturation);
-
-            m_input_base_value = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_base_value->setLabel("Base value(t) =");
-            m_input_base_value->setPosition(center + ccp(140, 25));
-            m_input_base_value->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_base_value);
-
-            m_input_detail_hue = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_detail_hue->setLabel("Detail hue(t) =");
-            m_input_detail_hue->setPosition(center + ccp(-140, -25));
-            m_input_detail_hue->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_detail_hue);
-
-            m_input_detail_saturation = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_detail_saturation->setLabel("Detail saturation(t) =");
-            m_input_detail_saturation->setPosition(center + ccp(0, -25));
-            m_input_detail_saturation->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_detail_saturation);
-
-            m_input_detail_value = TextInput::create(130, "0.0", "chatFont.fnt");
-            m_input_detail_value->setLabel("Detail value(t) =");
-            m_input_detail_value->setPosition(center + ccp(140, -25));
-            m_input_detail_value->setCommonFilter(CommonFilter::Any);
-            this->addChild(m_input_detail_value);
-
-
-            return true;
-        }
-
-        void onClose(CCObject* obj) override {
-            this->m_functool->m_base_hue = this->m_input_base_hue->getString();
-            this->m_functool->m_base_saturation = this->m_input_base_saturation->getString();
-            this->m_functool->m_base_value = this->m_input_base_value->getString();
-
-            this->m_functool->m_detail_hue = this->m_input_detail_hue->getString();
-            this->m_functool->m_detail_saturation = this->m_input_detail_saturation->getString();
-            this->m_functool->m_detail_value = this->m_input_detail_value->getString();
-
-            Popup::onClose(obj);
-        }
-    };
 
 	static auto* create() {
 		auto* node = new (std::nothrow) FunctionToolPopup();
@@ -335,15 +114,23 @@ public:
             menu_selector(FunctionToolPopup::onHsv)
         );
 
+        auto historyBtn = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName("GJ_timeIcon_001.png"),
+            this,
+            menu_selector(FunctionToolPopup::onScale)
+        );
+
         applyBtn->setPosition(center2 + ccp(110, -63));
         settingsBtn->setPosition(center2 + ccp(-180, -63));
         scaleBtn->setPosition(center2 + ccp(-110, -63));
         hsvBtn->setPosition(center2 + ccp(-40, -63));
+        historyBtn->setPosition(center2 + ccp(195, 65));
 
         m_buttonMenu->addChild(applyBtn);
         m_buttonMenu->addChild(settingsBtn);
         m_buttonMenu->addChild(scaleBtn);
         m_buttonMenu->addChild(hsvBtn);
+        m_buttonMenu->addChild(historyBtn);
 
         int input_width = 200;
 
@@ -657,6 +444,61 @@ public:
 		ui->selectObjects(objs, /* ignoreSelectFilter: */ true);
 		this->keyBackClicked();
 	}
+
+    ToolConfig saveConfig() {
+        return {
+            .x = m_input_x->getString(),
+            .y = m_input_y->getString(),
+            .rotation = m_input_rotation->getString(),
+
+            .n = m_input_n->getString(),
+            .start = m_input_start->getString(),
+            .end = m_input_end->getString(),
+
+            .abs_scaling = m_abs_scaling,
+            .abs_rotation = m_abs_rotation,
+            .use_robtop_units = m_use_robtop_units,
+            .use_radians = m_use_radians,
+            .delete_original = m_delete_original,
+
+            .scale_x = m_scale_x,
+            .scale_y = m_scale_y,
+
+            .base_hue = m_base_hue,
+            .base_saturation = m_base_saturation,
+            .base_value = m_base_value,
+            .detail_hue = m_detail_hue,
+            .detail_saturation = m_detail_saturation,
+            .detail_value = m_detail_value
+
+        };
+    }
+
+    void loadConfig(ToolConfig c) {
+        m_input_x->setString(c.x, false);
+        m_input_y->setString(c.y, false);
+        m_input_rotation->setString(c.rotation, false);
+
+        m_input_n->setString(c.n, false);
+        m_input_start->setString(c.start, false);
+        m_input_end->setString(c.end, false);
+
+        m_abs_scaling = c.abs_scaling;
+        m_abs_rotation = c.abs_rotation;
+        m_use_robtop_units = c.use_robtop_units;
+        m_use_radians = c.use_radians;
+        m_delete_original = c.delete_original;
+
+        m_scale_x = c.scale_x;
+        m_scale_y = c.scale_y;
+
+        m_base_hue = c.base_hue;
+        m_base_saturation = c.base_saturation;
+        m_base_value = c.base_value;
+        m_detail_hue = c.detail_hue;
+        m_detail_saturation = c.detail_saturation;
+        m_detail_value = c.detail_value;
+    }
 };
 
 class $modify(MyEditorUI, EditorUI) {
