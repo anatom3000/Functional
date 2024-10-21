@@ -20,6 +20,7 @@ public:
 
     bool m_abs_scaling;
     bool m_abs_rotation;
+    bool m_use_robtop_units;
 
     std::string m_scale_x;
     std::string m_scale_y;
@@ -35,6 +36,7 @@ public:
     class SettingsPopup : public geode::Popup<> {
     public:
         FunctionToolPopup* m_functool;
+        std::vector<CCMenuItemToggler*> m_inputs;
         CCMenuItemToggler* m_input_abs_scaling;
         CCMenuItemToggler* m_input_abs_rotation;
 
@@ -57,29 +59,58 @@ public:
             auto center = winSize / 2.f;
 
             auto const center2 = CCSize(220, 280) / 2;
-                
-            m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(SettingsPopup::onAbsScalingToggle), 0.6f);
-            m_input_abs_scaling->setPosition(center2 + ccp(80, 30));
-            m_buttonMenu->addChild(m_input_abs_scaling);
 
-            m_input_abs_rotation = CCMenuItemToggler::createWithStandardSprites(this, menu_selector(SettingsPopup::onAbsRotationToggle), 0.6f);
-            m_input_abs_rotation->setPosition(center2 + ccp(80, -25));
-            m_buttonMenu->addChild(m_input_abs_rotation);
+            #define entry(i, name, has_info) {\
+                auto input = m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, nullptr, 0.6f);\
+                input->setPosition(center2 + ccp(-72, 90-24*i));\
+                m_buttonMenu->addChild(input);\
+                m_inputs.push_back(input);\
+                auto label = CCLabelBMFont::create(name, "bigFont.fnt");\
+                label->setScale(0.4f);\
+                label->setPosition(center2 + ccp(-56.0+label->getScaledContentSize().width/2.0, 91-24*i));\
+                m_buttonMenu->addChild(label);\
+                if (has_info) {\
+                    auto bubble = CCMenuItemSpriteExtra::create(\
+                        bubbleSprite,\
+                        this,\
+                        menu_selector(SettingsPopup::bubbleCallback)\
+                    );\
+                    bubble->setTag(i);\
+                    bubble->setPosition(center2 + ccp(-94, 90-24*i));\
+                    m_buttonMenu->addChild(bubble);\
+                }\
+            }
+
+            auto bubbleSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
+            bubbleSprite->setScale(0.5f);
+
+            entry(0, "Absolute scaling", false);
+            entry(1, "Absolute rotation", false);
+            entry(2, "Use Robtop units", true);
 
             return true;
         }
 
-        void onAbsScalingToggle(CCObject*) {
-            m_functool->m_abs_scaling = m_input_abs_scaling->isToggled();
-        }
+        void bubbleCallback(CCObject* sender) {
+            const char* message = nullptr;
+            switch (sender->getTag()) {
+                case 2: message = "1.0 = 1/30 blocks = 1 unit \nin position fields \ninstead of 1.0 = 1 block"; break;
+            }
+            
+            if (message == nullptr) return;
+        
+            FLAlertLayer::create(
+                "Info",
+                message,
+                "OK"\
+            )->show();
 
-        void onAbsRotationToggle(CCObject*) {
-            m_functool->m_abs_rotation = m_input_abs_rotation->isToggled();
         }
 
         void onClose(CCObject* obj) override {
-            m_functool->m_abs_scaling = m_input_abs_scaling->isToggled();
-            m_functool->m_abs_rotation = m_input_abs_rotation->isToggled();
+            m_functool->m_abs_scaling       = m_inputs[0]->isToggled();
+            m_functool->m_abs_rotation      = m_inputs[1]->isToggled();
+            m_functool->m_use_robtop_units  = m_inputs[2]->isToggled();
             Popup::onClose(obj);
         }
     };
@@ -387,8 +418,9 @@ public:
         auto sub = SettingsPopup::create();
         sub->m_functool = this;
 
-        sub->m_input_abs_scaling->toggle(m_abs_scaling);
-        sub->m_input_abs_rotation->toggle(m_abs_rotation);
+        sub->m_inputs[0]->toggle(m_abs_scaling);
+        sub->m_inputs[1]->toggle(m_abs_rotation);
+        sub->m_inputs[2]->toggle(m_use_robtop_units);
 
         sub->show();
     }
@@ -540,8 +572,9 @@ public:
 
 		for (float i = 0; i < steps; i++) {
             float t = start + (end - start) * (float)i/(float)steps;
-
-            CCPoint pos = ccp(30.0 * x_expr.interpret(t), 30.0 * y_expr.interpret(t));
+            
+            float factor = m_use_robtop_units ? 1.0 : 30.0;
+            CCPoint pos = ccp(factor * x_expr.interpret(t), factor * y_expr.interpret(t));
             float rotation = rotation_expr.interpret(t);
             float scale_x = scale_x_expr.interpret(t);
             float scale_y = scale_y_expr.interpret(t);
