@@ -652,7 +652,7 @@ public:
 		}
 		editor->m_undoObjects->addObject(UndoObject::createWithArray(objs, UndoCommand::Paste));
 
-        if (m_delete_original) ui->onDeleteSelected(null);
+        if (m_delete_original) ui->onDeleteSelected(nullptr);
 
 		ui->selectObjects(objs, /* ignoreSelectFilter: */ true);
 		this->keyBackClicked();
