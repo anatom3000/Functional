@@ -368,6 +368,8 @@ public:
 
         auto selected = ui->getSelectedObjects()->shallowCopy();
         auto center = this->centerOf(selected);
+        // persistent singleton to reduce allocations
+        auto obj_single = CCArray::createWithCapacity(1);
 
 		for (float i = 0; i < steps; i++) {
             float t = start + (end - start) * (float)i/(float)steps;
@@ -406,12 +408,14 @@ public:
                 
                 ui->moveObject(obj, ccp(pos.x, pos.y));
                 
-                auto obj_single = CCArray::createWithObject(obj);
+                obj_single->addObject(obj);
 
         
                 ui->scaleObjects(obj_single, scale_x*obj->getRScaleX(), scale_y*obj->getRScaleY(), current_center, ObjectScaleType::XY, /* absoluteScaling: */ true);
                 if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);
                 if (m_abs_rotation) ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
+
+                obj_single->removeLastObject(false);
 
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;

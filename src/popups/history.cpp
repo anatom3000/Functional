@@ -1,19 +1,20 @@
+
 class HistoryPopup : public geode::Popup<> {
 public:
     FunctionToolPopup* m_functool;
     std::vector<ToolConfig> m_presets;
     geode::ScrollLayer* m_scrollLayer;
 
-    static auto* create(FunctionToolPopup* functool) {
-        auto* node = new (std::nothrow) HistoryPopup();
-        node->m_functool = functool;
-        if (node && node->initAnchored(440, 280)) {
-            node->autorelease();
+    static HistoryPopup* create(FunctionToolPopup* functool) {
+        auto* ret = new (std::nothrow) HistoryPopup();
+        ret->m_functool = functool;
+        if (ret && ret->initAnchored(440, 280)) {
+            ret->autorelease();
         } else {
-            delete node;
-            node = nullptr;
+            delete ret;
+            ret = nullptr;
         }
-        return node;
+        return ret;
     }
 
     bool setup() override {
@@ -38,20 +39,20 @@ public:
                 .delete_original = true
             }
         });
-
-        //m_listView = geode::ListView::create(m_entries, 60, 400, 190);
+        
+        // inspired by https://github.com/hiimjustin000/SearchHistory/blob/v1.1.0/src/SearchHistoryPopup.cpp
         m_scrollLayer = ScrollLayer::create({ 400.0f, 190.0f });
-        m_scrollLayer->setPosition(center2 - ccp(200, 85));
+        m_scrollLayer->setPosition(20.0f, 50.0f);
         m_scrollLayer->m_contentLayer->setLayout(
             ColumnLayout::create()
                 ->setAxisReverse(true)
                 ->setAxisAlignment(AxisAlignment::End)
-                ->setAutoGrowAxis(190.0f)
+                ->setAutoGrowAxis(195.0f)
                 ->setGap(0.0f)
         );
         m_mainLayer->addChild(m_scrollLayer);
-        
-        //this->refreshEntries();
+
+        this->refreshEntries(true);
 
         auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
         okSprite->setScale(0.85f);
@@ -67,22 +68,21 @@ public:
         return true;
     }
 
-    void refreshEntries() {
+    void refreshEntries(bool reset) {
         m_scrollLayer->m_contentLayer->removeAllChildren();
-        
+
         int i = 0;
         for (auto pre : m_presets) {
-            auto cell = ConfigCell::create(pre, m_functool);
-
-            cell->setPosition(ccp(0, 0));
+            auto cell = ConfigCell::create(pre, m_functool, i, this->m_presets.size());
 
             cell->m_history = this;
-            cell->m_index = i;
             m_scrollLayer->m_contentLayer->addChild(cell);
+
             i++;
         }
 
         m_scrollLayer->m_contentLayer->updateLayout();
+        if (reset) m_scrollLayer->scrollToTop();
     }
 
     void onClose(CCObject* obj) override {
@@ -92,17 +92,17 @@ public:
     }
 };
 
-
-class ConfigCell : public cocos2d::CCNode {
+class ConfigCell : public cocos2d::CCLayerColor {
 public:
     ToolConfig m_config;
     FunctionToolPopup* m_functool;
     HistoryPopup* m_history;
     int m_index;
+    int m_count;
 
-    static ConfigCell* create(ToolConfig c, FunctionToolPopup* functool) {
+    static ConfigCell* create(ToolConfig c, FunctionToolPopup* functool, int index, int count) {
         ConfigCell* node = new ConfigCell();
-        if (node && node->init(c, functool)) {
+        if (node && node->init(c, functool, index, count)) {
             node->autorelease();
         } else {
             delete node;
@@ -111,13 +111,26 @@ public:
         return node;
     }
 
-    bool init(ToolConfig c, FunctionToolPopup* functool) {
-        if (!CCNode::init()) return false;
+    void draw() override {
+        CCLayerColor::draw();
 
-        this->setContentSize({400.f, 60.f});
+        ccDrawColor4B(0, 0, 0, 75);
+        glLineWidth(2.0f);
+        if (m_index < m_count - 1) ccDrawLine({ 0.0f,  0.0f }, { 400.0f,  0.0f });
+        if (m_index > 0)           ccDrawLine({ 0.0f, 60.0f }, { 400.0f, 60.0f });
+    }
+
+    bool init(ToolConfig c, FunctionToolPopup* functool, int index, int count) {
+        if (!CCLayerColor::init()) return false;
 
         m_functool = functool;
         m_config = c;
+        m_index = index;
+        m_count = count;
+
+        this->setContentSize({400.f, 60.f});
+        this->setOpacity(index % 2 == 0 ? 50 : 100);
+
 
         auto center = ccp(400, 60) / 2.f;
 
@@ -178,8 +191,8 @@ public:
 
         auto useSprite = CCSprite::createWithSpriteFrameName("GJ_selectSongBtn_001.png");
         auto deleteSprite = CCSprite::createWithSpriteFrameName("GJ_trashBtn_001.png");
-        useSprite->setScale(0.7f);
-        deleteSprite->setScale(0.7f);
+        useSprite->setScale(0.70f);
+        deleteSprite->setScale(0.63f);
 
         auto useBtn = CCMenuItemSpriteExtra::create(
             useSprite,
@@ -207,10 +220,11 @@ public:
 
     void onUse(CCObject*) {
         m_functool->loadConfig(m_config);
+        m_history->onClose(nullptr);
     }
 
     void onDelete(CCObject*) {
         m_history->m_presets.erase(m_history->m_presets.begin() + m_index);
-        m_history->refreshEntries();
+        m_history->refreshEntries(m_index == 0);
     }
 };
