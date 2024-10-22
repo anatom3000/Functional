@@ -7,7 +7,7 @@ public:
 
     static auto* create() {
         auto* node = new (std::nothrow) SettingsPopup();
-        if (node && node->initAnchored(220, 280)) {
+        if (node && node->initAnchored(220, 180)) {
             node->autorelease();
         } else {
             delete node;
@@ -23,16 +23,18 @@ public:
         auto winSize = CCDirector::sharedDirector()->getWinSize();
         auto center = winSize / 2.f;
 
-        auto const center2 = CCSize(220, 280) / 2;
+        auto const center2 = CCSize(220, 180) / 2;
+
+        int base_height = 38;
 
         #define entry(i, name, has_info) {\
             auto input = m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, nullptr, 0.6f);\
-            input->setPosition(center2 + ccp(-72, 90-24*i));\
+            input->setPosition(center2 + ccp(-72, base_height-24*i));\
             m_buttonMenu->addChild(input);\
             m_inputs.push_back(input);\
             auto label = CCLabelBMFont::create(name, "bigFont.fnt");\
             label->setScale(0.4f);\
-            label->setPosition(center2 + ccp(-56.0+label->getScaledContentSize().width/2.0, 91-24*i));\
+            label->setPosition(center2 + ccp(-56.0+label->getScaledContentSize().width/2.0, base_height+1-24*i));\
             m_buttonMenu->addChild(label);\
             if (has_info) {\
                 auto bubble = CCMenuItemSpriteExtra::create(\
@@ -41,7 +43,7 @@ public:
                     menu_selector(SettingsPopup::bubbleCallback)\
                 );\
                 bubble->setTag(i);\
-                bubble->setPosition(center2 + ccp(-94, 90-24*i));\
+                bubble->setPosition(center2 + ccp(-94, base_height-24*i));\
                 m_buttonMenu->addChild(bubble);\
             }\
         }

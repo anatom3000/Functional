@@ -31,7 +31,7 @@ public:
         auto okBtn = CCMenuItemSpriteExtra::create(
             okSprite,
             this,
-            menu_selector(HsvPopup::onClose)
+            menu_selector(ScalePopup::onClose)
         );
         okBtn->setPosition(center2 + ccp(0, -112));
         m_buttonMenu->addChild(okBtn);

@@ -39,6 +39,7 @@ public:
     #include "popups/scale.cpp"
     #include "popups/hsv.cpp"
     #include "popups/history.cpp"
+    #include "popups/add.cpp"
 
 
 	static auto* create() {
@@ -93,10 +94,18 @@ public:
         historySprite->setScale(0.75f);
 
         auto historyBtn = CCMenuItemSpriteExtra::create(
-            //CCSprite::createWithSpriteFrameName("GJ_timeIcon_001.png"),
             historySprite,
             this,
             menu_selector(FunctionToolPopup::onHistory)
+        );
+
+        auto addSprite = CCSprite::createWithSpriteFrameName("GJ_plusBtn_001.png");
+        addSprite->setScale(0.5f);
+
+        auto addBtn = CCMenuItemSpriteExtra::create(
+            addSprite,
+            this,
+            menu_selector(FunctionToolPopup::onAdd)
         );
 
         applyBtn->setPosition(center2 + ccp(110, -63));
@@ -104,12 +113,14 @@ public:
         scaleBtn->setPosition(center2 + ccp(-110, -63));
         hsvBtn->setPosition(center2 + ccp(-40, -63));
         historyBtn->setPosition(center2 + ccp(195, 65));
+        addBtn->setPosition(center2 + ccp(160, 65));
 
         m_buttonMenu->addChild(applyBtn);
         m_buttonMenu->addChild(settingsBtn);
         m_buttonMenu->addChild(scaleBtn);
         m_buttonMenu->addChild(hsvBtn);
         m_buttonMenu->addChild(historyBtn);
+        m_buttonMenu->addChild(addBtn);
 
         int input_width = 200;
 
@@ -203,6 +214,13 @@ public:
 
     void onHistory(CCObject*) {
         auto sub = HistoryPopup::create(this);
+
+        sub->show();
+    }
+
+    void onAdd(CCObject*) {
+        auto sub = AddPopup::create();
+        sub->m_functool = this;
 
         sub->show();
     }
@@ -434,8 +452,10 @@ public:
 		this->keyBackClicked();
 	}
 
-    ToolConfig saveConfig() {
+    ToolConfig saveConfig(std::string name) {
         return {
+            .name = name,
+
             .x = m_input_x->getString(),
             .y = m_input_y->getString(),
             .rotation = m_input_rotation->getString(),
@@ -459,7 +479,6 @@ public:
             .detail_hue = m_detail_hue,
             .detail_saturation = m_detail_saturation,
             .detail_value = m_detail_value
-
         };
     }
 

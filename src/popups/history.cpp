@@ -28,17 +28,9 @@ public:
 
         m_presets = Mod::get()->getSavedValue<std::vector<ToolConfig>>(
             "presets", std::vector<ToolConfig> {
-            ToolConfig {
-                .name = "Circle",
-                .x = "4*sin(t)",
-                .y = "4*cos(t)",
-                .rotation = "t",
-                .n = "16",
-                .start = "0",
-                .end = "360",
-                .delete_original = true
+                #include "default_presets.inc"
             }
-        });
+        );
         
         // inspired by https://github.com/hiimjustin000/SearchHistory/blob/v1.1.0/src/SearchHistoryPopup.cpp
         m_scrollLayer = ScrollLayer::create({ 400.0f, 190.0f });
