@@ -50,9 +50,7 @@ public:
 
     void onCreate(CCObject* obj) {
         auto presets = Mod::get()->getSavedValue<std::vector<ToolConfig>>(
-            "presets", std::vector<ToolConfig> {
-                #include "default_presets.inc"
-            }
+            "presets", std::vector<ToolConfig> { DEFAULT_PRESETS }
         );
 
         presets.insert(presets.begin(), m_functool->saveConfig(m_input_name->getString()));

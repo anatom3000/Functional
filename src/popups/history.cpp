@@ -27,9 +27,7 @@ public:
         auto const center2 = CCSize(440, 280) / 2;
 
         m_presets = Mod::get()->getSavedValue<std::vector<ToolConfig>>(
-            "presets", std::vector<ToolConfig> {
-                #include "default_presets.inc"
-            }
+            "presets", std::vector<ToolConfig> { DEFAULT_PRESETS }
         );
         
         // inspired by https://github.com/hiimjustin000/SearchHistory/blob/v1.1.0/src/SearchHistoryPopup.cpp

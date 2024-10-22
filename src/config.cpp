@@ -88,3 +88,24 @@ struct matjson::Serialize<ToolConfig> {
         return value;
     }
 };
+
+#define DEFAULT_PRESETS\
+    ToolConfig {\
+        .name = "Circle",\
+        .x = "4*sin(t)",\
+        .y = "4*cos(t)",\
+        .rotation = "t",\
+        .n = "16",\
+        .start = "0",\
+        .end = "360",\
+        .delete_original = true\
+    },\
+    ToolConfig {\
+        .name = "Random blocks",\
+        .x = "round(20*random())",\
+        .y = "round(20*random())",\
+        .n = "50",\
+        .start = "0.0",\
+        .end = "1.0",\
+        .delete_original = true\
+    },\
