@@ -428,10 +428,10 @@ public:
                 
                 obj_single->addObject(obj);
 
-        
-                ui->scaleObjects(obj_single, scale_x*obj->getRScaleX(), scale_y*obj->getRScaleY(), current_center, ObjectScaleType::X, /* absoluteScaling: */ true);
-                ui->scaleObjects(obj_single, scale_x*obj->getRScaleX(), scale_y*obj->getRScaleY(), current_center, ObjectScaleType::Y, /* absoluteScaling: */ true);
-                if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);
+                auto base_scale_x = obj->getRScaleX();
+                auto base_scale_y = obj->getRScaleY();
+                ui->scaleObjects(obj_single, scale_x*base_scale_x, 1.0, current_center, ObjectScaleType::X, /* absoluteScaling: */ m_abs_scaling);
+                ui->scaleObjects(obj_single, 1.0, scale_y*base_scale_y, current_center, ObjectScaleType::Y, /* absoluteScaling: */ m_abs_scaling);
                 if (m_abs_rotation) ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
 
                 obj_single->removeLastObject(false);

@@ -1,10 +1,10 @@
 {   
 	"name": "Functional",
-	"description": "An editor tool for placing objects using parameterized formulas",
+	"description": "Editor tool for placing objects using formulas",
 	"developer": "anatom3000",
     "repository": "https://github.com/anatom3000/Functional",
 	"id": "anatom3000.functional",
-	"version": "v1.0.0",
+	"version": "v1.1.0",
 	"geode": "3.8.1",
 	"gd": {
 		"win": "2.206",

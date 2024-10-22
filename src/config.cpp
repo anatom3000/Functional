@@ -109,3 +109,19 @@ struct matjson::Serialize<ToolConfig> {
         .end = "1.0",\
         .delete_original = true\
     },\
+    ToolConfig {\
+        .name = "Random blocks",\
+        .x = "round(20*random())",\
+        .y = "round(20*random())",\
+        .n = "50",\
+        .start = "0.0",\
+        .end = "1.0",\
+        .delete_original = true\
+    },\
+    ToolConfig {\
+        .name = "Modify one",\
+        .n = "1",\
+        .start = "0.0",\
+        .end = "1.0",\
+        .delete_original = true\
+    },\
