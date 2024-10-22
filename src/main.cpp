@@ -510,7 +510,7 @@ public:
     }
 };
 
-class $modify(MyEditorUI, EditorUI) {
+class $modify(FuncToolEditorUI, EditorUI) {
 	void on_function_tool(CCObject*) {
 		if (this->getSelectedObjects()->count()) {
 			FunctionToolPopup::create()->show();
@@ -521,7 +521,7 @@ class $modify(MyEditorUI, EditorUI) {
 
 	void createMoveMenu() {
 		EditorUI::createMoveMenu();
-		auto* btn = this->getSpriteButton("gj22_anim_64_color_004.png", menu_selector(MyEditorUI::on_function_tool), nullptr, 0.9f);
+		auto* btn = this->getSpriteButton("FuncToolButton.png"_spr, menu_selector(FuncToolEditorUI::on_function_tool), nullptr, 1.f, 0, ccp(0, -2));
 		m_editButtonBar->m_buttonArray->addObject(btn);
 		auto rows = GameManager::sharedState()->getIntGameVariable("0049");
 		auto cols = GameManager::sharedState()->getIntGameVariable("0050");

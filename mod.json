@@ -15,5 +15,10 @@
         "editor",
         "utility",
         "offline"
-    ]
+    ],
+    "resources": {
+        "spritesheets": {
+            "FuncToolButton": ["resources/FuncToolButton.png"]
+        }
+    }
 }
