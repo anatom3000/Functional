@@ -1,6 +1,8 @@
 class HistoryPopup : public geode::Popup<> {
 public:
     FunctionToolPopup* m_functool;
+    std::vector<ToolConfig> m_presets;
+    geode::ScrollLayer* m_scrollLayer;
 
     static auto* create(FunctionToolPopup* functool) {
         auto* node = new (std::nothrow) HistoryPopup();
@@ -23,46 +25,33 @@ public:
 
         auto const center2 = CCSize(440, 280) / 2;
 
-        auto entries = CCArray::create();
-        entries->retain();
-        for (int i = 0; i < 5; i++) {
-            entries->addObject(ConfigCell::create({
-                .name = "uwu rawr",
-                .x = "42.0",
-                .y = "t",
-                .n = "15",
-                .start = "0.0",
-                .end = "5.0",
-                .abs_scaling = true,
-                .abs_rotation = false,
-                .use_robtop_units = true,
-                .use_radians = false,
-                .delete_original = true,
-                .scale_x = "2.0",
-                .scale_y = "0.5",
-                .base_hue = "t",
-            }, m_functool));
-            entries->addObject(ConfigCell::create({
-                .name = "aaa :x",
-                .x = "42.0",
-                .y = "t",
-                .n = "15",
-                .start = "0.0",
-                .end = "5.0",
-                .abs_scaling = true,
-                .abs_rotation = false,
-                .use_robtop_units = true,
-                .use_radians = false,
-                .delete_original = true,
-                .scale_x = "2.0",
-                .scale_y = "0.5",
-                .base_hue = "t",
-            }, m_functool));
-        }
+        m_presets = Mod::get()->getSavedValue<std::vector<ToolConfig>>(
+            "presets", std::vector<ToolConfig> {
+            ToolConfig {
+                .name = "Circle",
+                .x = "4*sin(t)",
+                .y = "4*cos(t)",
+                .rotation = "t",
+                .n = "16",
+                .start = "0",
+                .end = "360",
+                .delete_original = true
+            }
+        });
 
-        auto listView = geode::ListView::create(entries, 60, 400, 190);
-        listView->setPosition(center2 - ccp(200, 85));
-        m_buttonMenu->addChild(listView);
+        //m_listView = geode::ListView::create(m_entries, 60, 400, 190);
+        m_scrollLayer = ScrollLayer::create({ 400.0f, 190.0f });
+        m_scrollLayer->setPosition(center2 - ccp(200, 85));
+        m_scrollLayer->m_contentLayer->setLayout(
+            ColumnLayout::create()
+                ->setAxisReverse(true)
+                ->setAxisAlignment(AxisAlignment::End)
+                ->setAutoGrowAxis(190.0f)
+                ->setGap(0.0f)
+        );
+        m_mainLayer->addChild(m_scrollLayer);
+        
+        //this->refreshEntries();
 
         auto okSprite = ButtonSprite::create("OK", "bigFont.fnt", "GJ_button_01.png", .60f);
         okSprite->setScale(0.85f);
@@ -78,17 +67,38 @@ public:
         return true;
     }
 
+    void refreshEntries() {
+        m_scrollLayer->m_contentLayer->removeAllChildren();
+        
+        int i = 0;
+        for (auto pre : m_presets) {
+            auto cell = ConfigCell::create(pre, m_functool);
+
+            cell->setPosition(ccp(0, 0));
+
+            cell->m_history = this;
+            cell->m_index = i;
+            m_scrollLayer->m_contentLayer->addChild(cell);
+            i++;
+        }
+
+        m_scrollLayer->m_contentLayer->updateLayout();
+    }
+
     void onClose(CCObject* obj) override {
-        // save stuff
+        Mod::get()->setSavedValue<std::vector<ToolConfig>>("presets", m_presets);
+
         Popup::onClose(obj);
     }
 };
 
 
-class ConfigCell : public cocos2d::CCLayer {
+class ConfigCell : public cocos2d::CCNode {
 public:
     ToolConfig m_config;
     FunctionToolPopup* m_functool;
+    HistoryPopup* m_history;
+    int m_index;
 
     static ConfigCell* create(ToolConfig c, FunctionToolPopup* functool) {
         ConfigCell* node = new ConfigCell();
@@ -102,13 +112,15 @@ public:
     }
 
     bool init(ToolConfig c, FunctionToolPopup* functool) {
-        if (!CCLayer::init()) return false;
+        if (!CCNode::init()) return false;
+
+        this->setContentSize({400.f, 60.f});
 
         m_functool = functool;
+        m_config = c;
 
         auto center = ccp(400, 60) / 2.f;
 
-        m_config = c;
         auto name = CCLabelBMFont::create(c.name.c_str(), "bigFont.fnt");
         name->setScale(0.5f);
         name->setPosition(center + ccp(-195+name->getScaledContentSize().width/2.0, 22));
@@ -159,13 +171,15 @@ public:
         );
         auto infos = CCLabelBMFont::create(infos_content.c_str(), "chatFont.fnt");
         infos->setScale(0.6f);
-        infos->setPosition(center + ccp(-194+infos->getScaledContentSize().width/2.0, -6));
+        infos->setPosition(center + ccp(-193+infos->getScaledContentSize().width/2.0, -6));
         this->addChild(infos);
 
         auto button_menu = CCMenu::create();
 
         auto useSprite = CCSprite::createWithSpriteFrameName("GJ_selectSongBtn_001.png");
+        auto deleteSprite = CCSprite::createWithSpriteFrameName("GJ_trashBtn_001.png");
         useSprite->setScale(0.7f);
+        deleteSprite->setScale(0.7f);
 
         auto useBtn = CCMenuItemSpriteExtra::create(
             useSprite,
@@ -173,8 +187,17 @@ public:
             menu_selector(ConfigCell::onUse)
         );
 
-        useBtn->setPosition(center + ccp(180, 0));
+        auto deleteBtn = CCMenuItemSpriteExtra::create(
+            deleteSprite,
+            this,
+            menu_selector(ConfigCell::onDelete)
+        );
+
+
+        useBtn->setPosition(center + ccp(180, 15));
+        deleteBtn->setPosition(center + ccp(180, -15));
         button_menu->addChild(useBtn);
+        button_menu->addChild(deleteBtn);
 
         button_menu->setPosition(ccp(0, 0));
         this->addChild(button_menu);
@@ -184,5 +207,10 @@ public:
 
     void onUse(CCObject*) {
         m_functool->loadConfig(m_config);
+    }
+
+    void onDelete(CCObject*) {
+        m_history->m_presets.erase(m_history->m_presets.begin() + m_index);
+        m_history->refreshEntries();
     }
 };

@@ -7,35 +7,7 @@ using namespace geode;
 using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
-struct ToolConfig {
-    std::string name;
-
-    std::string x;
-    std::string y;
-    std::string rotation;
-
-    std::string n;
-    std::string start;
-    std::string end;
-
-    bool abs_scaling;
-    bool abs_rotation;
-    bool use_robtop_units;
-    bool use_radians;
-    bool delete_original;
-
-    std::string scale_x;
-    std::string scale_y;
-
-    std::string base_hue;
-    std::string base_saturation;
-    std::string base_value;
-    std::string detail_hue;
-    std::string detail_saturation;
-    std::string detail_value;
-
-};
-
+#include "config.cpp"
 
 class FunctionToolPopup : public geode::Popup<> {
 public:
