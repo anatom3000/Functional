@@ -1,6 +1,5 @@
-## TODO (maybe (if I got time (probably not)))
+## TODO
 - radius/angle mode
-- presets
 - history
 - use OkLab LCh instead of HSV
 
