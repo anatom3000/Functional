@@ -179,7 +179,7 @@ struct Expr {
                     case 0: {
                         if (this->name == "random") {
                             return double(std::rand()) / double(RAND_MAX);
-                        }
+                        } else return NAN;
 
                     }
                     case 1: {
@@ -217,7 +217,7 @@ struct Expr {
                             } else {
                                 return -1.0;
                             }
-                        }
+                        } else return NAN;
                     }
                     case 2: {
                         double arg1 = this->args[0].interpret(c);
@@ -227,6 +227,7 @@ struct Expr {
 
                         if      (this->name == "min") return std::min(arg1, arg2);
                         else if (this->name == "max") return std::max(arg1, arg2);
+                        else return NAN;
                     }
                     default: return NAN;
                 }

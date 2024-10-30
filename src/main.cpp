@@ -511,7 +511,7 @@ public:
     }
 
     void onClose(CCObject* sender) override {
-        Mod::get()->saveData();
+        (void)Mod::get()->saveData();
         Popup::onClose(sender);
     }
 };
