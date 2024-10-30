@@ -1,6 +1,7 @@
-## TODO (maybe (if I got time (probably not)))
+## TODO
+- fix scaling one last time
+- infoboxes
 - radius/angle mode
-- presets
 - history
 - use OkLab LCh instead of HSV
 
