@@ -430,6 +430,7 @@ public:
 
                 auto base_scale_x = obj->getRScaleX();
                 auto base_scale_y = obj->getRScaleY();
+                // TODO: fix scaling AAAAAAAAAAAAAAAAA
                 ui->scaleObjects(obj_single, scale_x*base_scale_x, 1.0, current_center, ObjectScaleType::X, /* absoluteScaling: */ m_abs_scaling);
                 ui->scaleObjects(obj_single, 1.0, scale_y*base_scale_y, current_center, ObjectScaleType::Y, /* absoluteScaling: */ m_abs_scaling);
                 if (m_abs_rotation) ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
@@ -507,6 +508,11 @@ public:
         m_detail_hue = c.detail_hue;
         m_detail_saturation = c.detail_saturation;
         m_detail_value = c.detail_value;
+    }
+
+    void onClose(CCObject* sender) override {
+        Mod::get()->saveData();
+        Popup::onClose(sender);
     }
 };
 
