@@ -1,3 +1,8 @@
+# 1.1.1
+- Fixed scaling again
+- Save presets when exiting the tool to prevent preset loss
+- Fixed unknown functions crashing the game
+
 # 1.1.0
 - Fixed rotation & scaling
 - Split UI into smaller submenus
