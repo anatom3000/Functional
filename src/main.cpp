@@ -426,16 +426,18 @@ public:
                 
                 ui->moveObject(obj, ccp(pos.x, pos.y));
                 
-                obj_single->addObject(obj);
-
                 auto base_scale_x = obj->getRScaleX();
                 auto base_scale_y = obj->getRScaleY();
-                // TODO: fix scaling AAAAAAAAAAAAAAAAA
-                ui->scaleObjects(obj_single, scale_x*base_scale_x, 1.0, current_center, ObjectScaleType::X, /* absoluteScaling: */ m_abs_scaling);
-                ui->scaleObjects(obj_single, 1.0, scale_y*base_scale_y, current_center, ObjectScaleType::Y, /* absoluteScaling: */ m_abs_scaling);
-                if (m_abs_rotation) ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
+                obj->updateCustomScaleX(base_scale_x*scale_x);
+                obj->updateCustomScaleY(base_scale_y*scale_y);
+                if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);
 
-                obj_single->removeLastObject(false);
+                if (m_abs_rotation) {
+                    obj_single->addObject(obj);
+                    ui->rotateObjects(obj_single, rotation, obj->getRealPosition());
+                    obj_single->removeLastObject(false);
+                }
+
 
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
@@ -443,14 +445,15 @@ public:
             }
             
             if (!m_abs_rotation) ui->rotateObjects(current, rotation, current_center);
-            
+
 			objs->addObjectsFromArray(current);
 		}
+
 		editor->m_undoObjects->addObject(UndoObject::createWithArray(objs, UndoCommand::Paste));
 
         if (m_delete_original) ui->onDeleteSelected(nullptr);
 
-		ui->selectObjects(objs, /* ignoreSelectFilter: */ true);
+        ui->selectObjects(objs, /* ignoreSelectFilter: */ true);
 		this->keyBackClicked();
 	}
 
