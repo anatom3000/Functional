@@ -1,3 +1,6 @@
+# 1.1.2
+- 2.2074 support
+
 # 1.1.1
 - Fixed scaling again
 - Save presets when exiting the tool to prevent preset loss
