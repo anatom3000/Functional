@@ -68,7 +68,7 @@ public:
         auto applyBtn = CCMenuItemSpriteExtra::create(
             applySprite,
             this,
-            menu_selector(FunctionToolPopup::on_apply)
+            menu_selector(FunctionToolPopup::onApply)
         );
 
         auto settingsSprite = CCSprite::createWithSpriteFrameName("GJ_optionsBtn_001.png");
@@ -107,6 +107,15 @@ public:
             this,
             menu_selector(FunctionToolPopup::onAdd)
         );
+        
+        auto bubbleSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
+        bubbleSprite->setScale(0.5f);
+
+        auto bubbleBtn = CCMenuItemSpriteExtra::create(
+            bubbleSprite,
+            this,
+            menu_selector(FunctionToolPopup::onBubble)
+        );
 
         applyBtn->setPosition(center2 + ccp(110, -63));
         settingsBtn->setPosition(center2 + ccp(-180, -63));
@@ -114,6 +123,7 @@ public:
         hsvBtn->setPosition(center2 + ccp(-40, -63));
         historyBtn->setPosition(center2 + ccp(195, 65));
         addBtn->setPosition(center2 + ccp(160, 65));
+        bubbleBtn->setPosition(center2 + ccp(-77, 68));
 
         m_buttonMenu->addChild(applyBtn);
         m_buttonMenu->addChild(settingsBtn);
@@ -121,6 +131,7 @@ public:
         m_buttonMenu->addChild(hsvBtn);
         m_buttonMenu->addChild(historyBtn);
         m_buttonMenu->addChild(addBtn);
+        //m_buttonMenu->addChild(bubbleBtn);
 
         int input_width = 200;
 
@@ -166,7 +177,7 @@ public:
 		return true;
 	}
 
-	void on_apply(CCObject*) {
+	void onApply(CCObject*) {
 		auto* editor = GameManager::sharedState()->getEditorLayer()->m_editorUI;
 		auto objs = editor->getSelectedObjects();
 		if (objs && objs->count()) {
@@ -223,6 +234,19 @@ public:
         sub->m_functool = this;
 
         sub->show();
+    }
+
+    void onBubble(CCObject*) {
+        // TODO: bigger popup
+        MDPopup::create(
+            "Info",
+            "# How to use this fucking tool \n"
+            "- <cr>dont suck ass</c>\n"
+            "- `sin(t)` ur mom\n"
+            "---\n"
+            "__**bottom text**__",
+            "OK"
+        )->show();
     }
 
     CCArray* copyObjects(CCArray* objects) {
@@ -428,6 +452,7 @@ public:
                 
                 auto base_scale_x = obj->getRScaleX();
                 auto base_scale_y = obj->getRScaleY();
+                // FIXME: find addresses for these
                 obj->updateCustomScaleX(base_scale_x*scale_x);
                 obj->updateCustomScaleY(base_scale_y*scale_y);
                 if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);

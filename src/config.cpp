@@ -28,37 +28,39 @@ struct ToolConfig {
 
 template<>
 struct matjson::Serialize<ToolConfig> {
-    static ToolConfig from_json(matjson::Value const& value) {
-        return {
-            .name = value["name"].as_string(),
-            .x = value["x"].as_string(),
-            .y = value["y"].as_string(),
-            .rotation = value["rotation"].as_string(),
+    static Result<ToolConfig> fromJson(matjson::Value const& value) {
+        ToolConfig config = {
+            .name = GEODE_UNWRAP(value["name"].asString()),
+            .x = GEODE_UNWRAP(value["x"].asString()),
+            .y = GEODE_UNWRAP(value["y"].asString()),
+            .rotation = GEODE_UNWRAP(value["rotation"].asString()),
 
-            .n = value["n"].as_string(),
-            .start = value["start"].as_string(),
-            .end = value["end"].as_string(),
+            .n = GEODE_UNWRAP(value["n"].asString()),
+            .start = GEODE_UNWRAP(value["start"].asString()),
+            .end = GEODE_UNWRAP(value["end"].asString()),
 
-            .abs_scaling = value["abs_scaling"].as_bool(),
-            .abs_rotation = value["abs_rotation"].as_bool(),
-            .use_robtop_units = value["use_robtop_units"].as_bool(),
-            .use_radians = value["use_radians"].as_bool(),
-            .delete_original = value["delete_original"].as_bool(),
+            .abs_scaling = GEODE_UNWRAP(value["abs_scaling"].asBool()),
+            .abs_rotation = GEODE_UNWRAP(value["abs_rotation"].asBool()),
+            .use_robtop_units = GEODE_UNWRAP(value["use_robtop_units"].asBool()),
+            .use_radians = GEODE_UNWRAP(value["use_radians"].asBool()),
+            .delete_original = GEODE_UNWRAP(value["delete_original"].asBool()),
 
-            .scale_x = value["scale_x"].as_string(),
-            .scale_y = value["scale_y"].as_string(),
+            .scale_x = GEODE_UNWRAP(value["scale_x"].asString()),
+            .scale_y = GEODE_UNWRAP(value["scale_y"].asString()),
 
-            .base_hue = value["base_hue"].as_string(),
-            .base_saturation = value["base_saturation"].as_string(),
-            .base_value = value["base_value"].as_string(),
-            .detail_hue = value["detail_hue"].as_string(),
-            .detail_saturation = value["detail_saturation"].as_string(),
-            .detail_value = value["detail_value"].as_string()
+            .base_hue = GEODE_UNWRAP(value["base_hue"].asString()),
+            .base_saturation = GEODE_UNWRAP(value["base_saturation"].asString()),
+            .base_value = GEODE_UNWRAP(value["base_value"].asString()),
+            .detail_hue = GEODE_UNWRAP(value["detail_hue"].asString()),
+            .detail_saturation = GEODE_UNWRAP(value["detail_saturation"].asString()),
+            .detail_value = GEODE_UNWRAP(value["detail_value"].asString())
         };
+
+        return Ok(config);
     }
 
-    static matjson::Value to_json(ToolConfig const& config) {
-        auto value = matjson::Object();
+    static matjson::Value toJson(ToolConfig const& config) {
+        auto value = matjson::Value();
         
         value["name"] = config.name;
         value["x"] = config.x;

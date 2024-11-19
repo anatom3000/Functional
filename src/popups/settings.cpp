@@ -51,11 +51,11 @@ public:
         auto bubbleSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
         bubbleSprite->setScale(0.5f);
 
-        entry(0, "Absolute scaling", false);
+        entry(0, "Absolute scaling" , false);
         entry(1, "Absolute rotation", false);
-        entry(2, "Use Robtop units", true);
-        entry(3, "Use radians", true);
-        entry(4, "Delete original", true);
+        entry(2, "Use Robtop units" , true );
+        entry(3, "Use radians"      , true );
+        entry(4, "Delete original"  , true );
 
         return true;
     }
