@@ -1,3 +1,6 @@
+# 1.1.3
+- Fixed detail HSV not working
+
 # 1.1.2
 - 2.2074 support
 

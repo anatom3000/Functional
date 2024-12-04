@@ -452,7 +452,6 @@ public:
                 
                 auto base_scale_x = obj->getRScaleX();
                 auto base_scale_y = obj->getRScaleY();
-                // FIXME: find addresses for these
                 obj->updateCustomScaleX(base_scale_x*scale_x);
                 obj->updateCustomScaleY(base_scale_y*scale_y);
                 if (!m_abs_scaling) this->scaleRelative(obj, current_center, scale_x, scale_y);
@@ -463,10 +462,13 @@ public:
                     obj_single->removeLastObject(false);
                 }
 
-
                 obj->m_baseColor->m_hsv.h += base_hue;
                 obj->m_baseColor->m_hsv.s += base_saturation;
                 obj->m_baseColor->m_hsv.v += base_value;
+
+                obj->m_detailColor->m_hsv.h += detail_hue;
+                obj->m_detailColor->m_hsv.s += detail_saturation;
+                obj->m_detailColor->m_hsv.v += detail_value;
             }
             
             if (!m_abs_rotation) ui->rotateObjects(current, rotation, current_center);
