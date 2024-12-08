@@ -1,3 +1,6 @@
+# 1.1.4
+- Fixed crash when using the tool on objects without a detail color (#2)
+
 # 1.1.3
 - Fixed detail HSV not working
 
