@@ -462,13 +462,17 @@ public:
                     obj_single->removeLastObject(false);
                 }
 
-                obj->m_baseColor->m_hsv.h += base_hue;
-                obj->m_baseColor->m_hsv.s += base_saturation;
-                obj->m_baseColor->m_hsv.v += base_value;
+                if (obj->m_baseColor) {
+                    obj->m_baseColor->m_hsv.h += base_hue;
+                    obj->m_baseColor->m_hsv.s += base_saturation;
+                    obj->m_baseColor->m_hsv.v += base_value;
+                }
 
-                obj->m_detailColor->m_hsv.h += detail_hue;
-                obj->m_detailColor->m_hsv.s += detail_saturation;
-                obj->m_detailColor->m_hsv.v += detail_value;
+                if (obj->m_detailColor) {
+                    obj->m_detailColor->m_hsv.h += detail_hue;
+                    obj->m_detailColor->m_hsv.s += detail_saturation;
+                    obj->m_detailColor->m_hsv.v += detail_value;
+                }
             }
             
             if (!m_abs_rotation) ui->rotateObjects(current, rotation, current_center);
