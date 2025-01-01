@@ -1,3 +1,6 @@
+# 1.2.0
+- Added preset string copy and pasting
+
 # 1.1.4
 - Fixed crash when using the tool on objects without a detail color (#2)
 
