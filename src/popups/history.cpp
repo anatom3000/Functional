@@ -1,3 +1,5 @@
+#include <Geode/utils/general.hpp>
+#include <Geode/ui/Notification.hpp>
 
 class HistoryPopup : public geode::Popup<> {
 public:
@@ -90,6 +92,8 @@ public:
     int m_index;
     int m_count;
 
+    static constexpr float CELL_HEIGHT = 90.0f;
+
     static ConfigCell* create(ToolConfig c, FunctionToolPopup* functool, int index, int count) {
         ConfigCell* node = new ConfigCell();
         if (node && node->init(c, functool, index, count)) {
@@ -107,7 +111,7 @@ public:
         ccDrawColor4B(0, 0, 0, 75);
         glLineWidth(2.0f);
         if (m_index < m_count - 1) ccDrawLine({ 0.0f,  0.0f }, { 400.0f,  0.0f });
-        if (m_index > 0)           ccDrawLine({ 0.0f, 60.0f }, { 400.0f, 60.0f });
+        if (m_index > 0)           ccDrawLine({ 0.0f, CELL_HEIGHT }, { 400.0f, CELL_HEIGHT });
     }
 
     bool init(ToolConfig c, FunctionToolPopup* functool, int index, int count) {
@@ -118,15 +122,15 @@ public:
         m_index = index;
         m_count = count;
 
-        this->setContentSize({400.f, 60.f});
+        this->setContentSize({400.f, CELL_HEIGHT});
         this->setOpacity(index % 2 == 0 ? 50 : 100);
 
 
-        auto center = ccp(400, 60) / 2.f;
+        auto center = ccp(400, CELL_HEIGHT) / 2.f;
 
         auto name = CCLabelBMFont::create(c.name.c_str(), "bigFont.fnt");
         name->setScale(0.5f);
-        name->setPosition(center + ccp(-195+name->getScaledContentSize().width/2.0, 22));
+        name->setPosition(center + ccp(-195+name->getScaledContentSize().width/2.0, 35));
         this->addChild(name);
 
         auto toggles_content = std::format(
@@ -146,12 +150,15 @@ public:
             toggles_content[0] = static_cast<char>(
                 std::toupper(static_cast<unsigned char>(toggles_content[0]))
             );
-        }
+        } else { toggles_content.push_back(' '); }
         
         auto infos_content = std::format(
-            "Position(t) = ({}, {}) ; Rotation(t) = {} ; Scale(t) = ({}, {})\n"
+            "Position(t) = ({}, {})\n"
+            "Rotation(t) = {}\n"
+            "Scale(t) = ({}, {})\n"
             "Amount: {} ; Start t: {} ; End t: {}\n"
-            "HSV Base: ({}, {}, {}) ; Detail: ({}, {}, {})\n"
+            "HSV Base: ({}, {}, {})\n"
+            "Detail: ({}, {}, {})\n"
             "{}",
             c.x.length() != 0 ? c.x : "N/A", 
             c.y.length() != 0 ? c.y : "N/A", 
@@ -172,16 +179,20 @@ public:
 
             toggles_content
         );
+
         auto infos = CCLabelBMFont::create(infos_content.c_str(), "chatFont.fnt");
         infos->setScale(0.6f);
-        infos->setPosition(center + ccp(-193+infos->getScaledContentSize().width/2.0, -6));
+        infos->setAnchorPoint({0.0, 0.0});
+        infos->setPosition(center + ccp(-193, -42));
         this->addChild(infos);
 
         auto button_menu = CCMenu::create();
 
         auto useSprite = CCSprite::createWithSpriteFrameName("GJ_selectSongBtn_001.png");
+        auto copySprite = CCSprite::createWithSpriteFrameName("GJ_copyBtn_001.png");
         auto deleteSprite = CCSprite::createWithSpriteFrameName("GJ_trashBtn_001.png");
         useSprite->setScale(0.70f);
+        copySprite->setScale(0.56f);
         deleteSprite->setScale(0.63f);
 
         auto useBtn = CCMenuItemSpriteExtra::create(
@@ -190,16 +201,24 @@ public:
             menu_selector(ConfigCell::onUse)
         );
 
+        auto copyBtn = CCMenuItemSpriteExtra::create(
+            copySprite,
+            this,
+            menu_selector(ConfigCell::onCopy)
+        );
+
         auto deleteBtn = CCMenuItemSpriteExtra::create(
             deleteSprite,
             this,
             menu_selector(ConfigCell::onDelete)
         );
 
+        useBtn->setPosition(center + ccp(180, 30));
+        copyBtn->setPosition(center + ccp(180, 0));
+        deleteBtn->setPosition(center + ccp(180, -30));
 
-        useBtn->setPosition(center + ccp(180, 15));
-        deleteBtn->setPosition(center + ccp(180, -15));
         button_menu->addChild(useBtn);
+        button_menu->addChild(copyBtn);
         button_menu->addChild(deleteBtn);
 
         button_menu->setPosition(ccp(0, 0));
@@ -211,6 +230,23 @@ public:
     void onUse(CCObject*) {
         m_functool->loadConfig(m_config);
         m_history->onClose(nullptr);
+    }
+
+    void onCopy(CCObject*) {
+        matjson::Value config_json = m_config;
+
+        if (utils::clipboard::write(config_json.dump(matjson::NO_INDENTATION))) {
+            Notification::create(
+                "Copied preset string to clipboard",
+                NotificationIcon::Success
+            )->show();
+        } else {
+            Notification::create(
+                "Unable to copy preset string",
+                NotificationIcon::Error
+            )->show();
+        }
+
     }
 
     void onDelete(CCObject*) {

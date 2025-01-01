@@ -1,5 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditorUI.hpp>
+#include <Geode/utils/general.hpp>
+#include <Geode/ui/Notification.hpp>
 
 #include "interpreter.cpp"
 
@@ -107,6 +109,15 @@ public:
             this,
             menu_selector(FunctionToolPopup::onAdd)
         );
+
+        auto pasteSprite = CCSprite::createWithSpriteFrameName("GJ_pasteBtn_001.png");
+        pasteSprite->setScale(0.6f);
+
+        auto pasteBtn = CCMenuItemSpriteExtra::create(
+            pasteSprite,
+            this,
+            menu_selector(FunctionToolPopup::onPaste)
+        );
         
         auto bubbleSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
         bubbleSprite->setScale(0.5f);
@@ -122,7 +133,8 @@ public:
         scaleBtn->setPosition(center2 + ccp(-110, -63));
         hsvBtn->setPosition(center2 + ccp(-40, -63));
         historyBtn->setPosition(center2 + ccp(195, 65));
-        addBtn->setPosition(center2 + ccp(160, 65));
+        addBtn->setPosition(center2 + ccp(125, 65));
+        pasteBtn->setPosition(center2 + ccp(160, 65));
         bubbleBtn->setPosition(center2 + ccp(-77, 68));
 
         m_buttonMenu->addChild(applyBtn);
@@ -131,6 +143,7 @@ public:
         m_buttonMenu->addChild(hsvBtn);
         m_buttonMenu->addChild(historyBtn);
         m_buttonMenu->addChild(addBtn);
+        m_buttonMenu->addChild(pasteBtn);
         //m_buttonMenu->addChild(bubbleBtn);
 
         int input_width = 200;
@@ -225,7 +238,6 @@ public:
 
     void onHistory(CCObject*) {
         auto sub = HistoryPopup::create(this);
-
         sub->show();
     }
 
@@ -234,6 +246,33 @@ public:
         sub->m_functool = this;
 
         sub->show();
+    }
+
+    void onPaste(CCObject*) {
+        auto value_result = matjson::parse(utils::clipboard::read());
+
+        if (value_result) {
+            auto value = value_result.unwrap();
+            auto preset_result = value.as<ToolConfig>();
+
+            if (preset_result) {
+                auto preset = preset_result.unwrap();
+                this->loadConfig(preset);
+
+                Notification::create(
+                    "Pasted preset string from keyboard",
+                    NotificationIcon::Success
+                )->show();
+
+                return;
+            }
+        }
+
+        Notification::create(
+            "Pasted string is not a valid preset string",
+            NotificationIcon::Error
+        )->show();
+
     }
 
     void onBubble(CCObject*) {
