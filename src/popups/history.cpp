@@ -66,7 +66,6 @@ public:
         int i = 0;
         for (auto pre : m_presets) {
             auto cell = ConfigCell::create(pre, m_functool, i, this->m_presets.size());
-
             cell->m_history = this;
             m_scrollLayer->m_contentLayer->addChild(cell);
 

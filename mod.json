@@ -4,10 +4,10 @@
 	"developer": "anatom3000",
     "links": {
         "source": "https://github.com/anatom3000/Functional",
-         "community": "https://discord.gg/cWng6AamgY"
+        "community": "https://discord.gg/cWng6AamgY"
     },
 	"id": "anatom3000.functional",
-	"version": "v1.2.0",
+	"version": "v1.3.0",
 	"geode": "4.0.1",
 	"gd": {
 		"win": "2.2074",

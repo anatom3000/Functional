@@ -3,12 +3,11 @@
 #include <Geode/utils/general.hpp>
 #include <Geode/ui/Notification.hpp>
 
-#include "interpreter.cpp"
-
 using namespace geode;
 using namespace cocos2d;
 using geode::cocos::CCArrayExt;
 
+#include "interpreter.cpp"
 #include "config.cpp"
 
 class FunctionToolPopup : public geode::Popup<> {
@@ -36,6 +35,9 @@ public:
     std::string m_detail_hue;
     std::string m_detail_saturation;
     std::string m_detail_value;
+
+    static std::optional<ToolConfig> pinnedConfig;
+    CCMenuItemSpriteExtra* m_pinToggler;
 
     #include "popups/settings.cpp"
     #include "popups/scale.cpp"
@@ -128,6 +130,15 @@ public:
             menu_selector(FunctionToolPopup::onBubble)
         );
 
+        auto unlockedSprite = CCSprite::createWithSpriteFrameName("GJ_lock_open_001.png");
+        auto lockedSprite = CCSprite::createWithSpriteFrameName("GJ_lock_001.png");
+        
+        this->m_pinToggler = CCMenuItemSpriteExtra::create(
+            CCSprite::createWithSpriteFrameName("GJ_lock_001.png"), this, menu_selector(FunctionToolPopup::onPin)
+        );
+
+        this->setLockSprite();
+
         applyBtn->setPosition(center2 + ccp(110, -63));
         settingsBtn->setPosition(center2 + ccp(-180, -63));
         scaleBtn->setPosition(center2 + ccp(-110, -63));
@@ -136,6 +147,7 @@ public:
         addBtn->setPosition(center2 + ccp(125, 65));
         pasteBtn->setPosition(center2 + ccp(160, 65));
         bubbleBtn->setPosition(center2 + ccp(-77, 68));
+        this->m_pinToggler->setPosition(center2 + ccp(203, -70));
 
         m_buttonMenu->addChild(applyBtn);
         m_buttonMenu->addChild(settingsBtn);
@@ -145,6 +157,7 @@ public:
         m_buttonMenu->addChild(addBtn);
         m_buttonMenu->addChild(pasteBtn);
         //m_buttonMenu->addChild(bubbleBtn);
+        m_buttonMenu->addChild(this->m_pinToggler);
 
         int input_width = 200;
 
@@ -187,6 +200,12 @@ public:
         m_input_end->setCommonFilter(CommonFilter::Float);
         this->addChild(m_input_end);
 
+        bool locked = Mod::get()->getSavedValue<bool>("keepConfigOnClose", false);
+
+        if (locked && FunctionToolPopup::pinnedConfig.has_value()) {
+            this->loadConfig(FunctionToolPopup::pinnedConfig.value());
+        }
+
 		return true;
 	}
 
@@ -194,7 +213,7 @@ public:
 		auto* editor = GameManager::sharedState()->getEditorLayer()->m_editorUI;
 		auto objs = editor->getSelectedObjects();
 		if (objs && objs->count()) {
-			perform();
+			this->perform();
 		}
 	}
 
@@ -277,6 +296,7 @@ public:
 
     void onBubble(CCObject*) {
         // TODO: bigger popup
+        // hi darling this is not added anywhere yet don't worry
         MDPopup::create(
             "Info",
             "# How to use this fucking tool \n"
@@ -286,6 +306,28 @@ public:
             "__**bottom text**__",
             "OK"
         )->show();
+    }
+
+    void setLockSprite() {
+        bool locked = Mod::get()->getSavedValue<bool>("keepConfigOnClose", false);
+
+        const char* sprite = locked ? "GJ_lock_001.png" : "GJ_lock_open_001.png";
+
+        auto spr = CCSprite::createWithSpriteFrameName(sprite);
+        spr->setScale(locked ? .68f : .7f);
+        spr->setPosition(this->m_pinToggler->getNormalImage()->getPosition());
+
+        this->m_pinToggler->setNormalImage(spr);
+        spr->setAnchorPoint(locked ? ccp(.47f, .48f) : ccp(.5f, .2f));
+    }
+
+    void onPin(CCObject*) {
+        bool locked = Mod::get()->getSavedValue<bool>("keepConfigOnClose", false);
+        Mod::get()->setSavedValue<bool>("keepConfigOnClose", !locked);
+
+        log::info("{}", !locked);
+
+        this->setLockSprite();
     }
 
     CCArray* copyObjects(CCArray* objects) {
@@ -585,9 +627,18 @@ public:
 
     void onClose(CCObject* sender) override {
         (void)Mod::get()->saveData();
+        bool locked = Mod::get()->getSavedValue<bool>("keepConfigOnClose", false);
+        if (locked) {
+            FunctionToolPopup::pinnedConfig.emplace(this->saveConfig(""));
+        } else {
+            FunctionToolPopup::pinnedConfig.reset();
+        }
+
         Popup::onClose(sender);
     }
 };
+
+std::optional<ToolConfig> FunctionToolPopup::pinnedConfig = std::nullopt;
 
 class $modify(FuncToolEditorUI, EditorUI) {
 	void on_function_tool(CCObject*) {
