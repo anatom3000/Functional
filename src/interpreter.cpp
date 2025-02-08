@@ -302,13 +302,12 @@ ParseResult parse_expression(Tokens& tokens) {
 }
 
 ParseResult parse_sum(Tokens& tokens, size_t& at) {
-    Expr expr;
-    TRY(expr, parse_product(tokens, at));
+    Expr expr; TRY(expr, parse_product(tokens, at));
 
     while (at < tokens.size() && (tokens[at].kind == TokenKind::Plus || tokens[at].kind == TokenKind::Minus)) {
         if (tokens[at].kind == TokenKind::Plus) {
             at++;
-            auto right = std::get<0>(parse_product(tokens, at));
+            Expr right; TRY(right, parse_product(tokens, at));
             expr = {
                 .kind = ExprKind::Add,
                 .left = std::make_unique<Expr>(std::move(expr)),
@@ -316,7 +315,7 @@ ParseResult parse_sum(Tokens& tokens, size_t& at) {
             };
         } else if (tokens[at].kind == TokenKind::Minus) {
             at++;
-            auto right = std::get<0>(parse_product(tokens, at));
+            Expr right; TRY(right, parse_product(tokens, at));
             expr = {
                 .kind = ExprKind::Sub,
                 .left = std::make_unique<Expr>(std::move(expr)),

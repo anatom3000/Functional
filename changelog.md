@@ -1,5 +1,6 @@
 # 1.3.0
 - Added lock to keep config when exitting the tool (does not save between game restarts)
+- Fixed crash when parsing some invalid expressions
 
 # 1.2.0
 - Added preset string copy and pasting
