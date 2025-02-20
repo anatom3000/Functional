@@ -1,3 +1,6 @@
+# 1.3.1
+- Port to MacOS (thanks jasmine for the bindings)
+
 # 1.3.0
 - Added lock to keep config when exitting the tool (does not save between game restarts)
 - Fixed crash when parsing some invalid expressions
