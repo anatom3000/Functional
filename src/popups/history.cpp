@@ -132,7 +132,7 @@ public:
         name->setPosition(center + ccp(-195+name->getScaledContentSize().width/2.0, 35));
         this->addChild(name);
 
-        auto toggles_content = std::format(
+        auto toggles_content = fmt::format(
             "{}{}{}{}{}",
             c.abs_scaling ?      "absolute scaling, "  : "",
             c.abs_rotation ?     "absolute rotation, " : "",
@@ -151,7 +151,7 @@ public:
             );
         } else { toggles_content.push_back(' '); }
         
-        auto infos_content = std::format(
+        auto infos_content = fmt::format(
             "Position(t) = ({}, {})\n"
             "Rotation(t) = {}\n"
             "Scale(t) = ({}, {})\n"

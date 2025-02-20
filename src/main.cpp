@@ -360,7 +360,7 @@ public:
 
             FLAlertLayer::create(
                 "Error",
-                std::format("{}: unrecognized character '{}' at position {}", field, input[index], index+1),
+                fmt::format("{}: unrecognized character '{}' at position {}", field, input[index], index+1),
                 "OK"
             )->show();
 
@@ -380,7 +380,7 @@ public:
 
             FLAlertLayer::create(
                 "Error while parsing",
-                std::format("{}: {}", field, message),
+                fmt::format("{}: {}", field, message),
                 "OK"
             )->show();
 
@@ -456,7 +456,7 @@ public:
         if (steps_str.length() == 0) {
             FLAlertLayer::create(
                 "Error",
-                std::format("Amount field is empty"),
+                fmt::format("Amount field is empty"),
                 "OK"
             )->show();
         }
@@ -466,7 +466,7 @@ public:
         if (start_str.length() == 0) {
             FLAlertLayer::create(
                 "Error",
-                std::format("Start t field is empty"),
+                fmt::format("Start t field is empty"),
                 "OK"
             )->show();
         }
@@ -476,7 +476,7 @@ public:
         if (start_str.length() == 0) {
             FLAlertLayer::create(
                 "Error",
-                std::format("End t field is empty"),
+                fmt::format("End t field is empty"),
                 "OK"
             )->show();
         }

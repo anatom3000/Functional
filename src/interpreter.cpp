@@ -397,7 +397,7 @@ ParseResult parse_primary(Tokens& tokens, size_t& at) {
             TRY(expr, parse_sum(tokens, at));
 
             if (!(at < tokens.size() && tokens[at].kind == TokenKind::RParen)) {
-                return std::format("expected ')' after parenthesized expression at token {}", at+1);
+                return fmt::format("expected ')' after parenthesized expression at token {}", at+1);
             }
             at++;
             break;
@@ -434,7 +434,7 @@ ParseResult parse_primary(Tokens& tokens, size_t& at) {
                 }
 
                 if (!(at < tokens.size() && tokens[at].kind == TokenKind::RParen)) {
-                    return std::format("expected ')' after function arguments at token {}", at+1);
+                    return fmt::format("expected ')' after function arguments at token {}", at+1);
                 }
                 at++;
 
@@ -453,7 +453,7 @@ ParseResult parse_primary(Tokens& tokens, size_t& at) {
             break;
         }
         default: {
-            return std::format("unexpected token {} at token {}", tokens[at].format(), at+1);
+            return fmt::format("unexpected token {} at token {}", tokens[at].format(), at+1);
         }
     }
 
