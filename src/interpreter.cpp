@@ -376,7 +376,7 @@ ParseResult parse_pow(Tokens& tokens, size_t& at) {
 
 ParseResult parse_primary(Tokens& tokens, size_t& at) {
     if (at >= tokens.size()) {
-        return std::format("expected expression, found end of string");
+        return "expected expression, found end of string";
     }
 
     Expr expr;
