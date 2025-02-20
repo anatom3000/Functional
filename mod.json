@@ -8,10 +8,11 @@
     },
 	"id": "anatom3000.functional",
 	"version": "v1.3.0",
-	"geode": "4.0.1",
+	"geode": "4.2.0",
 	"gd": {
 		"win": "2.2074",
-		"android": "2.2074"
+		"android": "2.2074",
+        "mac": "2.2074"
 	},
     "tags": [
         "editor",
