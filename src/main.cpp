@@ -2,6 +2,7 @@
 #include <Geode/modify/EditorUI.hpp>
 #include <Geode/utils/general.hpp>
 #include <Geode/ui/Notification.hpp>
+#include <Geode/utils/web.hpp>
 
 using namespace geode;
 using namespace cocos2d;
@@ -156,7 +157,7 @@ public:
         m_buttonMenu->addChild(historyBtn);
         m_buttonMenu->addChild(addBtn);
         m_buttonMenu->addChild(pasteBtn);
-        //m_buttonMenu->addChild(bubbleBtn);
+        m_buttonMenu->addChild(bubbleBtn);
         m_buttonMenu->addChild(this->m_pinToggler);
 
         int input_width = 200;
@@ -295,17 +296,20 @@ public:
     }
 
     void onBubble(CCObject*) {
-        // TODO: bigger popup
-        // hi darling this is not added anywhere yet don't worry
-        MDPopup::create(
-            "Info",
-            "# How to use this fucking tool \n"
-            "- <cr>dont suck ass</c>\n"
-            "- `sin(t)` ur mom\n"
-            "---\n"
-            "__**bottom text**__",
-            "OK"
-        )->show();
+        geode::createQuickPopup(
+            "Guide",
+            "Do you want to open the Functional guide?",
+            "No", "Yes",
+            [](auto, bool yes) {
+                if (yes) {
+                    utils::web::openLinkInBrowser("https://github.com/anatom3000/Functional/blob/dev/guide.md");
+                    Notification::create(
+                        "Opening guide, check your browser...",
+                        NotificationIcon::Info
+                    )->show();
+                }
+            }
+        );
     }
 
     void setLockSprite() {

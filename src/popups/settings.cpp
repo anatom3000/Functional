@@ -2,8 +2,6 @@ class SettingsPopup : public geode::Popup<> {
 public:
     FunctionToolPopup* m_functool;
     std::vector<CCMenuItemToggler*> m_inputs;
-    CCMenuItemToggler* m_input_abs_scaling;
-    CCMenuItemToggler* m_input_abs_rotation;
 
     static auto* create() {
         auto* node = new (std::nothrow) SettingsPopup();
@@ -28,7 +26,7 @@ public:
         int base_height = 38;
 
         #define entry(i, name, has_info) {\
-            auto input = m_input_abs_scaling = CCMenuItemToggler::createWithStandardSprites(this, nullptr, 0.6f);\
+            auto input = CCMenuItemToggler::createWithStandardSprites(this, nullptr, 0.6f);\
             input->setPosition(center2 + ccp(-72, base_height-24*i));\
             m_buttonMenu->addChild(input);\
             m_inputs.push_back(input);\

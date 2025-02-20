@@ -6,17 +6,7 @@ This mod adds a button to the edit tab in the editor that places copies of the s
 
 [Result of setup](https://github.com/anatom3000/Functional/blob/dev/functool_result.png?raw=true)
 
-## Supported operations
-- `+`, `-`, `*`, `/`, `**` (pow)
-- `random()`
-- `cos(...)`, `sin(...)`, `tan(...)` (arguments are in degrees or in radians)
-- `acos(...)`, `asin(...)`, `atan(...)` (results are in degrees or in radians)
-- `sqrt(...)`, `cbrt(...)`
-- `exp(...)`, `ln(...)`, `log10(...)`, `log2(...)`
-- `cosh(...)`, `sinh(...)`, `tanh(...)`
-- `abs(...)`, `sgn(...)`
-- `round(...)`, `floor(...)`, `ceil(...)`
-- `min(..., ...)`, `max(..., ...)`
+See [the guide](https://github.com/anatom3000/Functional/blob/dev/guide.md) for more information on usage.
 
 ## Issues
 If you encounter any bug, please report it on the [Discord server](https://discord.gg/cWng6AamgY) or [create an issue on Github](https://github.com/anatom3000/Functional/issues).
