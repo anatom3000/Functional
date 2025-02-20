@@ -9,7 +9,7 @@ This tool places several copies of the selected objects, varying various propert
 Each box allows you to enter a mathematical formula, for instance `1`, `3 + t` or `5 * sin(t + 90) + 2`
 The "Amount" specifies the number of copies the tool should place.
 
-"Start t" and "End t" sets bounds for `t`. Formulas can be parameterized by `t` to change the properties for each copy.
+"Start t" and "End t" set bounds for `t`. Formulas can be parameterized by `t` to change the properties for each copy.
 For instance, if you set "Amount" to `5`, "Start t" to `10.0` and "End t" to `20.0`, the first copy will have `t = 10.0`, the second copy will have `t = 12.0`, and so on. Note that this range is exclusive, the "End t" value will never be reached: the last copy will have `t = 18.0` instead of `t = 20.0`.
 
 > For some example presets, check the folder at the top right. You can also save your own presets too (see Buttons).
@@ -37,7 +37,7 @@ Join the [Discord server](https://discord.gg/cWng6AamgY) for additional help and
     - Examples: 
         - `1` will not stretch the copy horizontally.
         - `2` will double the copy's width
-        - `-1` will flip the copy horizontally.
+        - `-1` will flip the copy along the Y axis.
 
 - Scale Y(t):
     - Scales copy vertically.
@@ -74,8 +74,8 @@ Join the [Discord server](https://discord.gg/cWng6AamgY) for additional help and
     - Sign: will return `1` if argument is positive, `-1` if argument is negative or `0` if argument is zero.
 - `round(...)`, `floor(...)`, `ceil(...)`
     - `round(4.7)` evaluates to `5`.
-    - `floor(4.2)` evaluates to `4`.
-    - `ceil(4.2)` evaluates to `5`.
+    - `floor(4.7)` evaluates to `4`.
+    - `ceil(4.7)` evaluates to `5`.
 - `min(..., ...)`, `max(..., ...)`
     - Returns the minimum/maximum of both arguments.
 - `pi`
@@ -107,3 +107,10 @@ The lock button (bottom right) allows you to keep your configuration when you ex
     - By default the tool will not delete the original objects you selected before entering the tool.
     - Enabling this option will make the tool delete those objects.
     - This is useful when the original objects are replaced or when they are only used as a reference position.
+
+### Tips
+
+- If you plan on making more complex shapes, consider making the formulas in [Desmos](https://www.desmos.com/calculator) first.
+- You can make animations by using the tool on a keyframe object. Enabling the delete original option is recommanded.
+
+> If you want to contribute to this guide in any way, join the Discord server and ping me (`@anatom3000`) or make a pull request.
