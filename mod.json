@@ -1,13 +1,13 @@
 {   
 	"name": "Functional",
 	"description": "Editor tool for placing objects using formulas",
-	"developer": "anatom3000",
+	"developer": "zowepsilon",
     "links": {
-        "source": "https://github.com/anatom3000/Functional",
+        "source": "https://github.com/zowepsilon/Functional",
         "community": "https://discord.gg/cWng6AamgY"
     },
 	"id": "anatom3000.functional",
-	"version": "v1.3.1",
+	"version": "v1.4.0",
 	"geode": "4.2.0",
 	"gd": {
 		"win": "2.2074",

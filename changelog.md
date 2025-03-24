@@ -1,3 +1,6 @@
+# 1.4.0
+- Add Guide
+
 # 1.3.1
 - Port to MacOS (thanks jasmine for the bindings)
 
