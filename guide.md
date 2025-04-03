@@ -113,4 +113,4 @@ The lock button (bottom right) allows you to keep your configuration when you ex
 - If you plan on making more complex shapes, consider making the formulas in [Desmos](https://www.desmos.com/calculator) first.
 - You can make animations by using the tool on a keyframe object. Enabling the delete original option is recommanded.
 
-> If you want to contribute to this guide in any way, join the Discord server and ping me (`@anatom3000`) or make a pull request.
+> If you want to contribute to this guide in any way, join the Discord server and ping me (`@zowepsilon`) or make a pull request.
