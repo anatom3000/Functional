@@ -5,9 +5,9 @@ A Geometry Dash mod to place objects using parameterized formulas.
 
 This mod adds a button to the edit tab in the editor that places copies of the selected objects, varying position, rotation, scale and HSV by any formula depending on `t`. This allows you to precisely place objects.
 
-[Example setup](https://github.com/zowepsilon/Functional/blob/dev/functool_popup.png?raw=true)
+![Example setup](https://github.com/zowepsilon/Functional/blob/dev/functool_popup.png?raw=true)
 
-[Result of setup](https://github.com/zowepsilon/Functional/blob/dev/functool_result.png?raw=true)
+![Result of setup](https://github.com/zowepsilon/Functional/blob/dev/functool_result.png?raw=true)
 
 See [the guide](https://github.com/zowepsilon/Functional/blob/dev/guide.md) for more information on usage.
 
