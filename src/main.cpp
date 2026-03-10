@@ -11,7 +11,7 @@ using geode::cocos::CCArrayExt;
 #include "interpreter.cpp"
 #include "config.cpp"
 
-class FunctionToolPopup : public geode::Popup<> {
+class FunctionToolPopup : public geode::Popup {
 public:
     TextInput* m_input_x;
     TextInput* m_input_y;
@@ -49,7 +49,7 @@ public:
 
 	static auto* create() {
 		auto* node = new (std::nothrow) FunctionToolPopup();
-		if (node && node->initAnchored(440, 180)) {
+		if (node && node->init()) {
 			node->autorelease();
 		} else {
 			delete node;
@@ -58,7 +58,9 @@ public:
 		return node;
 	}
 
-	bool setup() override {
+	bool init() {
+        if (!Popup::init(440, 180)) return false;
+
         m_noElasticity = true;
         this->setTitle("Function tool");
 
@@ -629,7 +631,7 @@ public:
         m_detail_value = c.detail_value;
     }
 
-    void onClose(CCObject* sender) override {
+    void onClose(CCObject* sender) {
         (void)Mod::get()->saveData();
         bool locked = Mod::get()->getSavedValue<bool>("keepConfigOnClose", false);
         if (locked) {

@@ -1,4 +1,4 @@
-class HsvPopup : public geode::Popup<> {
+class HsvPopup : public geode::Popup {
 public:
     TextInput* m_input_base_hue;
     TextInput* m_input_base_saturation;
@@ -10,7 +10,7 @@ public:
 
     static auto* create() {
         auto* node = new (std::nothrow) HsvPopup();
-        if (node && node->initAnchored(440, 180)) {
+        if (node && node->init()) {
             node->autorelease();
         } else {
             delete node;
@@ -19,7 +19,9 @@ public:
         return node;
     }
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(440, 180)) return false;
+
         m_noElasticity = true;
         this->setTitle("HSV");
 

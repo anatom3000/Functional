@@ -1,11 +1,11 @@
-class AddPopup : public geode::Popup<> {
+class AddPopup : public geode::Popup {
 public:
     TextInput* m_input_name;
     FunctionToolPopup* m_functool;
 
     static auto* create() {
         auto* node = new (std::nothrow) AddPopup();
-        if (node && node->initAnchored(220, 130)) {
+        if (node && node->init()) {
             node->autorelease();
         } else {
             delete node;
@@ -14,7 +14,9 @@ public:
         return node;
     }
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(220, 130)) return false;
+
         m_noElasticity = true;
         this->setTitle("Create new preset");
 
@@ -44,7 +46,7 @@ public:
         return true;
     }
 
-    void onClose(CCObject* obj) override {
+    void onClose(CCObject* obj) {
         Popup::onClose(obj);
     }
 

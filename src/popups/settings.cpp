@@ -1,11 +1,11 @@
-class SettingsPopup : public geode::Popup<> {
+class SettingsPopup : public geode::Popup {
 public:
     FunctionToolPopup* m_functool;
     std::vector<CCMenuItemToggler*> m_inputs;
 
     static auto* create() {
         auto* node = new (std::nothrow) SettingsPopup();
-        if (node && node->initAnchored(220, 180)) {
+        if (node && node->init()) {
             node->autorelease();
         } else {
             delete node;
@@ -14,7 +14,9 @@ public:
         return node;
     }
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(220, 180)) return false;
+
         m_noElasticity = true;
         this->setTitle("Options");
 

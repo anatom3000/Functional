@@ -1,7 +1,7 @@
 #include <Geode/utils/general.hpp>
 #include <Geode/ui/Notification.hpp>
 
-class HistoryPopup : public geode::Popup<> {
+class HistoryPopup : public geode::Popup {
 public:
     FunctionToolPopup* m_functool;
     std::vector<ToolConfig> m_presets;
@@ -10,7 +10,7 @@ public:
     static HistoryPopup* create(FunctionToolPopup* functool) {
         auto* ret = new (std::nothrow) HistoryPopup();
         ret->m_functool = functool;
-        if (ret && ret->initAnchored(440, 280)) {
+        if (ret && ret->init()) {
             ret->autorelease();
         } else {
             delete ret;
@@ -19,7 +19,9 @@ public:
         return ret;
     }
 
-    bool setup() override {
+    bool init() {
+        if (!Popup::init(440, 280)) return false;
+
         m_noElasticity = true;
         this->setTitle("Presets");
 
